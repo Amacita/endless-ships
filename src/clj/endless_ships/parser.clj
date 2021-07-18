@@ -5,13 +5,33 @@
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
-(def files
-  "All files containing game data."
+(defn preprocess
+  "Removes comments and blank lines from the given text. Ensures the text ends in a newline."
+  [text-str]
+  (let [text-lines        (str/split-lines text-str)
+        lines-no-comments (map #(str/replace % #"#.*" "") text-lines)
+        lines-no-blanks   (remove str/blank? lines-no-comments)
+        text-no-blanks    (str/join \newline lines-no-blanks)
+        end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
+    end-with-nl))
+
+(def files-vanilla
+  "All vanilla files containing game data."
   (->> "game/data"
        resource
        file
        file-seq
        (filter #(.endsWith (.getName %) ".txt"))))
+
+(def files-gw
+  "All Galactic War files containing game data."
+  (->> "gw/data"
+       resource
+       file
+       file-seq
+       (filter #(.endsWith (.getName %) ".txt"))))
+
+#_(def files-both files-gw)
 
 (defn- transform-block [[_ name & args] & child-blocks]
   (let [processed-children (reduce (fn [children [child-name & child-contents]]
@@ -36,21 +56,20 @@
    :integer #(Long/parseLong %)
    :float #(Float/parseFloat (str/replace % "," "."))})
 
-(defn parse [data]
-  (let [parser (-> "parser.bnf"
-                   resource
-                   insta/parser)]
-    (->> (parser data)
-         (insta/transform transform-options))))
+(defn parse [file]
+  (let [parser (insta/parser (resource "parser.bnf"))
+        filename (.getName file)]
+    (print (str "Parsing " filename "... "))
+    (time
+       (let [text              (-> file slurp preprocess)
+             parsed            (parser text :optimize :memory)
+             transformed       (insta/transform transform-options parsed)
+             labelled-objects  (map #(assoc-in % [2 "file"] filename) transformed)]
+         labelled-objects))))
 
 (def data
-  (time
-   (->> files
-        (mapcat (fn [file]
-                  (let [filename (.getName file)
-                        objects (-> file slurp parse)]
-                    (map #(assoc-in % [2 "file"] filename) objects))))
-        doall)))
+   (doall
+     (mapcat parse files-vanilla)))
 
 (defn ->map [m]
   (reduce (fn [data [attr-name attr-value]]

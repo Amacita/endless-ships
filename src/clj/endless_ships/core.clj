@@ -20,7 +20,15 @@
    "drak.txt" :drak
    "ships.txt" :human
    "indigenous.txt" :indigenous
-   "sheragi ships.txt" :sheragi})
+   "sheragi ships.txt" :sheragi
+   "Aumar ships.txt" :aumar
+   "Dels ships.txt" :dels
+   "Donko ships.txt" :donko
+   "Erader Darua ships.txt" :erader
+   "Erader Kasiva ships.txt" :erader
+   "Erader Narpul ships.txt" :erader
+   "Makerurader Ship.txt" :erader
+   })
 
 (def outfits-data
   (->> outfits
@@ -71,6 +79,23 @@
 (def game-version
   (let [git-cmd (fn [& args]
                   (->> (concat ["git"] args [:dir "./resources/game"])
+                       (apply sh)
+                       :out
+                       str/trim))
+        commit-hash (git-cmd "rev-parse" "HEAD")
+        commit-date (-> (git-cmd "show" "-s" "--format=%ci" "HEAD")
+                        (str/split #" ")
+                        first)
+        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD")
+                                    (str/split #"-"))]
+    (merge {:hash commit-hash
+            :date commit-date}
+           (when (nil? commits-since-tag)
+             {:tag tag}))))
+
+(def gw-version
+  (let [git-cmd (fn [& args]
+                  (->> (concat ["git"] args [:dir "./resources/gw"])
                        (apply sh)
                        :out
                        str/trim))
