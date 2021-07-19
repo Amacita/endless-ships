@@ -10,7 +10,8 @@
   [text-str]
   (let [text-lines        (str/split-lines text-str)
         lines-no-comments (map #(str/replace % #"#.*" "") text-lines)
-        lines-no-blanks   (remove str/blank? lines-no-comments)
+        lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
+        lines-no-blanks   (remove str/blank? lines-rstrip)
         text-no-blanks    (str/join \newline lines-no-blanks)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
     end-with-nl))
@@ -31,7 +32,8 @@
        file-seq
        (filter #(.endsWith (.getName %) ".txt"))))
 
-#_(def files-both files-gw)
+;(def files (concat files-vanilla files-gw))
+(def files files-vanilla)
 
 (defn- transform-block [[_ name & args] & child-blocks]
   (let [processed-children (reduce (fn [children [child-name & child-contents]]
@@ -69,7 +71,7 @@
 
 (def data
    (doall
-     (mapcat parse files-vanilla)))
+     (mapcat parse files)))
 
 (defn ->map [m]
   (reduce (fn [data [attr-name attr-value]]

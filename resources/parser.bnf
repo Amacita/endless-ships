@@ -1,19 +1,19 @@
 data = (0-indented-block)+
 
 0-indented-block = line (1-indented-block)*
-1-indented-block = '\t' line (2-indented-block / 3-indented-block)*
-2-indented-block = '\t\t' line (3-indented-block / 4-indented-block)*
-3-indented-block = '\t\t\t' line (4-indented-block / 5-indented-block)*
-4-indented-block = '\t\t\t\t' line (5-indented-block / 6-indented-block)*
-5-indented-block = '\t\t\t\t\t' line
-6-indented-block = '\t\t\t\t\t\t' line
+1-indented-block = <'\t'> line (2-indented-block / 3-indented-block)*
+2-indented-block = <'\t\t'> line (3-indented-block / 4-indented-block)*
+3-indented-block = <'\t\t\t'> line (4-indented-block / 5-indented-block)*
+4-indented-block = <'\t\t\t\t'> line (5-indented-block / 6-indented-block)*
+5-indented-block = <'\t\t\t\t\t'> line
+6-indented-block = <'\t\t\t\t\t\t'> line
 
 line = <space>? string (<space> token)* <newline>
 
 <token> = string | number
-string = #'[a-zA-Z0-9=?\(\)><*/+\-\'_]+' | <'"'> #'[^"]*' <'"'> | <'`'> #'[^`]*' <'`'>
+string = #'[a-zA-Z0-9=?\(\)><*/+\-\'_]+' | <'"'> #'[^"\n]*' <'"'> | <'`'> #'[^`\n]*' <'`'>
 space = #'[, ]+'
-newline = #'[ \t]*\n'
+newline = '\n'
 <number> = integer | float
 integer = #'-?[0-9]+'
 float = #'-?[0-9]*[\.,][0-9]*'
