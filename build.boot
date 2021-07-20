@@ -8,7 +8,7 @@
 (require '[buddy.core.codecs :refer [bytes->hex]]
          '[buddy.core.hash :refer [sha1]]
          '[clojure.string :as str]
-         '[endless-ships.core :refer [edn]])
+         '[endless-ships.core])
 
 (deftask dev
   "Starts an nREPL server."
@@ -25,24 +25,25 @@
 (deftask build
   "Build the site into build/ directory."
   []
-  (dosh "rm" "-rf" "./build")
-  (dosh "yarn" "install")
-  (dosh "shadow-cljs" "release" "main")
-  (dosh "mkdir" "-p" "./build/js")
-  (let [edn-filename (filename-with-hash "data.edn" edn)
-        js (-> (slurp "./public/js/main.js")
-               (str/replace "data.edn" edn-filename))
-        js-filename (filename-with-hash "main.js" js)
-        html (-> (slurp "./public/index.html")
-                 (str/replace "main.js" js-filename))]
-    (spit (str "./build/" edn-filename) edn)
-    (spit (str "./build/js/" js-filename) js)
-    (spit "./build/index.html" html)
-    (dosh "cp" "./public/app.css" "./public/ga.json" "./build")
-    (if (.exists (clojure.java.io/as-file "ga.json"))
-      (dosh "cp" "./ga.json" "./build"))))
+  (let [edn (endless-ships.core/edn endless-ships.parser/data)]
+    (dosh "rm" "-rf" "./build")
+    (dosh "yarn" "install")
+    (dosh "shadow-cljs" "release" "main")
+    (dosh "mkdir" "-p" "./build/js")
+    (let [edn-filename (filename-with-hash "data.edn" edn)
+          js (-> (slurp "./public/js/main.js")
+                 (str/replace "data.edn" edn-filename))
+          js-filename (filename-with-hash "main.js" js)
+          html (-> (slurp "./public/index.html")
+                   (str/replace "main.js" js-filename))]
+      (spit (str "./build/" edn-filename) edn)
+      (spit (str "./build/js/" js-filename) js)
+      (spit "./build/index.html" html)
+      (dosh "cp" "./public/app.css" "./public/ga.json" "./build")
+      (if (.exists (clojure.java.io/as-file "ga.json"))
+        (dosh "cp" "./ga.json" "./build")))))
 
 (deftask generate-data
   "Generate the data.edn file in public/ for local development."
   []
-  (spit "public/data.edn" edn))
+  (spit "public/data.edn" (endless-ships.core/edn endless-ships.parser/data)))

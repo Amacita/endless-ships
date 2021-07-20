@@ -2,79 +2,10 @@
   (:require [clojure.java.shell :refer [sh]]
             [clojure.set :refer [rename-keys]]
             [clojure.string :as str]
-            [endless-ships.outfits :refer [outfits]]
+            [endless-ships.outfits :refer [outfits-data]]
             [endless-ships.outfitters :refer [outfitters]]
-            [endless-ships.ships :refer [modifications ships]]))
-
-(def file->race
-  {"kestrel.txt" :human
-   "hai ships.txt" :hai
-   "pug.txt" :pug
-   "wanderer ships.txt" :wanderer
-   "quarg ships.txt" :quarg
-   "remnant ships.txt" :remnant
-   "ka'het ships.txt" :ka'het
-   "korath ships.txt" :korath
-   "marauders.txt" :pirate
-   "coalition ships.txt" :coalition
-   "drak.txt" :drak
-   "ships.txt" :human
-   "indigenous.txt" :indigenous
-   "sheragi ships.txt" :sheragi
-   "Aumar ships.txt" :aumar
-   "Dels ships.txt" :dels
-   "Donko ships.txt" :donko
-   "Erader Darua ships.txt" :erader
-   "Erader Kasiva ships.txt" :erader
-   "Erader Narpul ships.txt" :erader
-   "Makerurader Ship.txt" :erader
-   })
-
-(def outfits-data
-  (->> outfits
-       (remove #(#{"deprecated outfits.txt"
-                   "nanobots.txt"
-                   "transport missions.txt"} (:file %)))
-       (map #(dissoc % :file))))
-
-(defn- assoc-outfits-cost [ship]
-  (let [outfits (:outfits ship)]
-    (if (empty? outfits)
-      ship
-      (assoc ship
-             :outfits-cost
-             (reduce (fn [cost {:keys [name quantity]}]
-                       (let [outfit (->> outfits-data
-                                         (filter #(= (:name %) name))
-                                         first)]
-                         (+ cost
-                            (* (get outfit :cost 0)
-                               quantity))))
-                     0
-                     outfits)))))
-
-(def ships-data
-  (->> ships
-       (filter #(some? (file->race (:file %))))
-       (map #(-> %
-                 (select-keys [:name :sprite :licenses :file
-                               :cost :category :hull :shields :mass
-                               :engine-capacity :weapon-capacity :fuel-capacity
-                               :outfits :outfit-space :cargo-space
-                               :required-crew :bunks :description
-                               :guns :turrets :drones :fighters
-                               :self-destruct :ramscoop])
-                 (assoc :race (get file->race (:file %) :other))
-                 (dissoc :file)
-                 (rename-keys {:cost :empty-hull-cost})
-                 assoc-outfits-cost))))
-
-(def modifications-data
-  (->> modifications
-       (map #(-> %
-                 (dissoc :file)
-                 (rename-keys {:cost :empty-hull-cost})
-                 assoc-outfits-cost))))
+            [endless-ships.ships :refer [modifications-data ships-data]]
+            [endless-ships.parser :refer [data]]))
 
 (def game-version
   (let [git-cmd (fn [& args]
@@ -110,24 +41,25 @@
            (when (nil? commits-since-tag)
              {:tag tag}))))
 
-(def edn
-  (let [data {:ships ships-data
-              :ship-modifications modifications-data
-              :outfits outfits-data
-              :outfitters outfitters
-              :version game-version}]
-    (with-out-str (clojure.pprint/pprint data))))
+(defn edn [data]
+  (let [edn-data {:ships (ships-data data)
+                  :ship-modifications (modifications-data data)
+                  :outfits outfits-data
+                  :outfitters outfitters
+                  :version game-version
+                  :gw-version gw-version}]
+    (with-out-str (clojure.pprint/pprint edn-data))))
 
 (comment
   ;; generate data for frontend development
   (spit "public/data.edn" edn)
   ;; get a list of all possible attribute names
-  (->> ships-data
+  (->> (ships-data data)
        (map keys)
        (apply concat)
        (into #{}))
   ;; get ship counts by race
-  (->> ships-data
+  (->> (ships-data data)
        (map :race)
        (reduce (fn [counts object]
                  (update counts object #(inc (or % 0))))

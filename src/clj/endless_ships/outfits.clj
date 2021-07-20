@@ -165,6 +165,29 @@
                       outfit
                       attribute-convertors)))))
 
+(def outfits-data
+  (->> outfits
+       (remove #(#{"deprecated outfits.txt"
+                   "nanobots.txt"
+                   "transport missions.txt"} (:file %)))
+       (map #(dissoc % :file))))
+
+(defn assoc-outfits-cost [ship]
+  (let [outfits (:outfits ship)]
+    (if (empty? outfits)
+      ship
+      (assoc ship
+             :outfits-cost
+             (reduce (fn [cost {:keys [name quantity]}]
+                       (let [outfit (->> outfits-data
+                                         (filter #(= (:name %) name))
+                                         first)]
+                         (+ cost
+                            (* (get outfit :cost 0)
+                               quantity))))
+                     0
+                     outfits)))))
+
 (comment
   ;; outfit counts by category
   (->> outfits
