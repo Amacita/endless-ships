@@ -25,7 +25,7 @@
 (deftask build
   "Build the site into build/ directory."
   []
-  (let [edn (endless-ships.core/edn endless-ships.parser/data)]
+  (let [edn (endless-ships.core/edn "game/data")]
     (dosh "rm" "-rf" "./build")
     (dosh "yarn" "install")
     (dosh "shadow-cljs" "release" "main")
@@ -46,4 +46,4 @@
 (deftask generate-data
   "Generate the data.edn file in public/ for local development."
   []
-  (spit "public/data.edn" (endless-ships.core/edn endless-ships.parser/data)))
+  (spit "public/data.edn" (endless-ships.core/edn "game/data")))

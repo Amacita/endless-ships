@@ -1,7 +1,7 @@
 (ns endless-ships.parser
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
-            [clojure.java.io :refer [file resource]]
             [clojure.string :as str]
+            [clojure.java.io :refer [resource]]
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
@@ -15,25 +15,6 @@
         text-no-blanks    (str/join \newline lines-no-blanks)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
     end-with-nl))
-
-(def files-vanilla
-  "All vanilla files containing game data."
-  (->> "game/data"
-       resource
-       file
-       file-seq
-       (filter #(.endsWith (.getName %) ".txt"))))
-
-(def files-gw
-  "All Galactic War files containing game data."
-  (->> "gw/data"
-       resource
-       file
-       file-seq
-       (filter #(.endsWith (.getName %) ".txt"))))
-
-;(def files (concat files-vanilla files-gw))
-(def files files-vanilla)
 
 (defn- transform-block [[_ name & args] & child-blocks]
   (let [processed-children (reduce (fn [children [child-name & child-contents]]
@@ -69,7 +50,7 @@
              labelled-objects  (map #(assoc-in % [2 "file"] filename) transformed)]
          labelled-objects))))
 
-(def data
+(defn parse-data-files [files]
    (doall
      (mapcat parse files)))
 

@@ -1,5 +1,5 @@
 (ns endless-ships.outfits
-  (:require [endless-ships.parser :refer [->map data]]))
+  (:require [endless-ships.parser :refer [->map]]))
 
 (defn- update-if-present [m k f]
   (if (contains? m k)
@@ -132,7 +132,7 @@
        (dissoc outfit :weapon)))
    outfits))
 
-(def outfits
+(defn outfits [data]
   (->> data
        (filter #(= (first %) "outfit"))
        (map (fn [[_
@@ -165,14 +165,14 @@
                       outfit
                       attribute-convertors)))))
 
-(def outfits-data
-  (->> outfits
+(defn outfits-data [data]
+  (->> (outfits data)
        (remove #(#{"deprecated outfits.txt"
                    "nanobots.txt"
                    "transport missions.txt"} (:file %)))
        (map #(dissoc % :file))))
 
-(defn assoc-outfits-cost [ship]
+(defn assoc-outfits-cost [ship outfits-data]
   (let [outfits (:outfits ship)]
     (if (empty? outfits)
       ship

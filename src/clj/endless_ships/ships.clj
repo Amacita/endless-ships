@@ -1,6 +1,6 @@
 (ns endless-ships.ships
   (:require [clojure.set :refer [rename-keys]]
-            [endless-ships.parser :refer [->map data]]
+            [endless-ships.parser :refer [->map]]
             [endless-ships.outfits :refer [assoc-outfits-cost]]))
 
 (defn- add-key-if [cond key value]
@@ -89,7 +89,7 @@
        (map #(-> (process-ship %)
                  (dissoc :modification)))))
 
-(defn ships-data [data]
+(defn ships-data [data outfit-data]
   (->> (ships data)
        (filter #(some? (file->race (:file %))))
        (map #(-> %
@@ -102,8 +102,8 @@
                                :self-destruct :ramscoop])
                  (assoc :race (get file->race (:file %) :other))
                  (dissoc :file)
-                 (rename-keys {:cost :empty-hull-cost})
-                 assoc-outfits-cost))))
+                 (rename-keys {:cost :empty-hull-cost})))
+       (map #(assoc-outfits-cost % outfit-data))))
 
 (defn modifications [data]
   (->> data
@@ -111,9 +111,9 @@
                      (= (-> % second count) 2)))
        (map process-ship)))
 
-(defn modifications-data [data]
+(defn modifications-data [data outfit-data]
   (->> (modifications data)
        (map #(-> %
                  (dissoc :file)
-                 (rename-keys {:cost :empty-hull-cost})
-                 assoc-outfits-cost))))
+                 (rename-keys {:cost :empty-hull-cost})))
+       (map #(assoc-outfits-cost % outfit-data))))

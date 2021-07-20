@@ -1,11 +1,17 @@
 (ns endless-ships.core
-  (:require [clojure.java.shell :refer [sh]]
+  (:require [clojure.java.io :refer [file resource]]
+            [clojure.java.shell :refer [sh]]
             [clojure.set :refer [rename-keys]]
             [clojure.string :as str]
             [endless-ships.outfits :refer [outfits-data]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
-            [endless-ships.parser :refer [data]]))
+            [endless-ships.parser :refer [parse-data-files]]))
+
+(defn find-data-files [dir]
+  "Finds all data files starting at ./resources/<dir>"
+  (->> (file-seq (file (resource dir)))
+       (filter #(.endsWith (.getName %) ".txt"))))
 
 (def game-version
   (let [git-cmd (fn [& args]
@@ -41,11 +47,17 @@
            (when (nil? commits-since-tag)
              {:tag tag}))))
 
-(defn edn [data]
-  (let [edn-data {:ships (ships-data data)
-                  :ship-modifications (modifications-data data)
-                  :outfits outfits-data
-                  :outfitters outfitters
+(defn edn [dir]
+  (let [files (find-data-files dir)
+        data (parse-data-files files)
+        complete-outfits (outfits-data data)
+        complete-ships (ships-data data complete-outfits)
+        complete-modifications (modifications-data data complete-outfits)
+        complete-outfitters (outfitters data)
+        edn-data {:ships complete-ships
+                  :ship-modifications complete-modifications
+                  :outfits complete-outfits
+                  :outfitters complete-outfitters
                   :version game-version
                   :gw-version gw-version}]
     (with-out-str (clojure.pprint/pprint edn-data))))

@@ -1,5 +1,4 @@
-(ns endless-ships.outfitters
-  (:require [endless-ships.parser :refer [->map data]]))
+(ns endless-ships.outfitters)
 
 (defn- find-object-with-name [objects name]
   (some (fn [object]
@@ -9,7 +8,7 @@
                 (find-object-with-name child-objects name))))
         objects))
 
-(defn- find-system-with-planet [planet-name]
+(defn- find-system-with-planet [planet-name data]
   (->> data
        (filter #(= (first %) "system"))
        (filter (fn [system]
@@ -17,7 +16,7 @@
                    (find-object-with-name planets planet-name))))
        first))
 
-(defn- planets-with-outfitter [outfitter-type]
+(defn- planets-with-outfitter [outfitter-type data]
   (let [planets (filter #(= (first %) "planet") data)]
     (->> planets
          (filter (fn [planet]
@@ -25,13 +24,13 @@
                          (get-in planet [2 "outfitter"]))))
          (map (fn [[_ [planet-name]]]
                 {:name planet-name
-                 :system (-> (find-system-with-planet planet-name)
+                 :system (-> (find-system-with-planet planet-name data)
                              (get-in [1 0]))})))))
 
-(def outfitters
+(defn outfitters [data]
   (->> data
        (filter #(= (first %) "outfitter"))
        (map (fn [[_ [name] outfits]]
               {:name name
                :outfits (->> outfits keys (remove #{"file"}))
-               :planets (planets-with-outfitter name)}))))
+               :planets (planets-with-outfitter name data)}))))
