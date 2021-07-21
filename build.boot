@@ -8,7 +8,7 @@
 (require '[buddy.core.codecs :refer [bytes->hex]]
          '[buddy.core.hash :refer [sha1]]
          '[clojure.string :as str]
-         '[endless-ships.core])
+         '[endless-ships.core :as core])
 
 (deftask dev
   "Starts an nREPL server."
@@ -25,7 +25,8 @@
 (deftask build
   "Build the site into build/ directory."
   []
-  (let [edn (endless-ships.core/edn "game/data")]
+  (let [edn (core/edn (concat (core/find-data-files "game/data")
+                              (core/find-data-files "gw/data")))]
     (dosh "rm" "-rf" "./build")
     (dosh "yarn" "install")
     (dosh "shadow-cljs" "release" "main")
@@ -46,4 +47,6 @@
 (deftask generate-data
   "Generate the data.edn file in public/ for local development."
   []
-  (spit "public/data.edn" (endless-ships.core/edn "game/data")))
+  (let [edn (core/edn (concat (core/find-data-files "game/data")
+                              (core/find-data-files "gw/data")))]
+    (spit "public/data.edn" edn)))

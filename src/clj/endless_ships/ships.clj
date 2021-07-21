@@ -8,29 +8,14 @@
     {key value}
     {}))
 
-(def file->race
-  {"kestrel.txt" :human
-   "hai ships.txt" :hai
-   "pug.txt" :pug
-   "wanderer ships.txt" :wanderer
-   "quarg ships.txt" :quarg
-   "remnant ships.txt" :remnant
-   "ka'het ships.txt" :ka'het
-   "korath ships.txt" :korath
-   "marauders.txt" :pirate
-   "coalition ships.txt" :coalition
-   "drak.txt" :drak
-   "ships.txt" :human
-   "indigenous.txt" :indigenous
-   "sheragi ships.txt" :sheragi
-   "Aumar ships.txt" :aumar
-   "Dels ships.txt" :dels
-   "Donko ships.txt" :donko
-   "Erader Darua ships.txt" :erader
-   "Erader Kasiva ships.txt" :erader
-   "Erader Narpul ships.txt" :erader
-   "Makerurader Ship.txt" :erader
+(def file->race-overrides
+  {
+   "game/data/human/marauders.txt" :pirate
+   "game/data/drak/indigenous.txt" :indigenous
    })
+
+(defn file->race [path]
+  (-> path clojure.java.io/file .getParentFile .getName .toLowerCase keyword))
 
 (defn- process-ship [[_
                       [ship-name ship-modification]
@@ -91,7 +76,6 @@
 
 (defn ships-data [data outfit-data]
   (->> (ships data)
-       (filter #(some? (file->race (:file %))))
        (map #(-> %
                  (select-keys [:name :sprite :licenses :file
                                :cost :category :hull :shields :mass
@@ -100,8 +84,8 @@
                                :required-crew :bunks :description
                                :guns :turrets :drones :fighters
                                :self-destruct :ramscoop])
-                 (assoc :race (get file->race (:file %) :other))
-                 (dissoc :file)
+                 (assoc :race (get file->race-overrides (:file %) (file->race (:file %))))
+;                 (dissoc :file)
                  (rename-keys {:cost :empty-hull-cost})))
        (map #(assoc-outfits-cost % outfit-data))))
 
@@ -114,6 +98,16 @@
 (defn modifications-data [data outfit-data]
   (->> (modifications data)
        (map #(-> %
-                 (dissoc :file)
+;                 (dissoc :file)
                  (rename-keys {:cost :empty-hull-cost})))
        (map #(assoc-outfits-cost % outfit-data))))
+
+
+(comment
+  (use 'endless-ships.ships :reload-all)
+  (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/drak/indigenous.txt")]))
+  (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/human/ships.txt")]))
+  (clojure.pprint/pprint wdata)
+  (file->race (clojure.java.io/resource "gw/data/Dels/Dels ships.txt"))
+  (clojure.pprint/pprint (ships-data wdata []))
+    )

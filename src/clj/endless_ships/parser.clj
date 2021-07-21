@@ -5,6 +5,35 @@
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
+(def resource-root (-> (clojure.java.io/resource "game") clojure.java.io/file .getParent))
+
+(defn file->relative-path [file]
+  (let [absPath (-> file .getPath)
+        relPath (subs absPath (+ 1 (count resource-root)))]
+    relPath))
+
+(defn ignore-unwanted-map-lines [text]
+  "Map files are large enough to slow down the parser, so we preprocess them to get rid of unwanted and unnecessary lines."
+  (remove
+      (some-fn
+        #(str/starts-with? % "\tasteroids ")
+        #(str/starts-with? % "\ttrade ")
+        #(str/starts-with? % "\tmineables ")
+        #(str/starts-with? % "\tlink ")
+        #(str/starts-with? % "\tbelt ")
+        #(str/starts-with? % "\thabitable ")
+        #(str/starts-with? % "\t\tperiod ")
+        #(str/starts-with? % "\t\tdistance ")
+        #(str/starts-with? % "\t\t\tperiod ")
+        #(str/starts-with? % "\t\t\tdistance ")
+        #(str/starts-with? % "\t\tspaceport ")
+        #(str/starts-with? % "\t\tlandscape ")
+        #(str/starts-with? % "\t\tsprite star/ ")
+        #(str/starts-with? % "\t\tsprite planet/ ")
+        #(str/starts-with? % "\t\t\tsprite star/ ")
+        #(str/starts-with? % "\t\t\tsprite planet/ "))
+      text))
+
 (defn preprocess
   "Removes comments and blank lines from the given text. Ensures the text ends in a newline."
   [text-str]
@@ -13,6 +42,7 @@
         lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
         lines-no-blanks   (remove str/blank? lines-rstrip)
         text-no-blanks    (str/join \newline lines-no-blanks)
+        ;;map-cleaned       (ignore-unwanted-map-lines text-no-blanks)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
     end-with-nl))
 
@@ -41,7 +71,7 @@
 
 (defn parse [file]
   (let [parser (insta/parser (resource "parser.bnf"))
-        filename (.getName file)]
+        filename (file->relative-path file)]
     (print (str "Parsing " filename "... "))
     (time
        (let [text              (-> file slurp preprocess)
@@ -63,6 +93,16 @@
           m))
 
 (comment
+  (def wfiles (endless-ships.core/find-data-files "gw/data/Dels"))
+  (def wfile (resource "gw/data/Dels/Dels ships.txt"))
+  (def wdata (parse-data-files wfiles))
+  (defn foobar [lines]
+    (remove (some-fn #(str/starts-with? % "\tasteroids ")) lines))
+  (-> wfile slurp preprocess print)
+  (endless-ships.core/edn wfiles)
+
+  (use 'endless-ships.parser :reload-all)
+
   ;; object counts by type
   (->> data
        (map first)

@@ -47,9 +47,8 @@
            (when (nil? commits-since-tag)
              {:tag tag}))))
 
-(defn edn [dir]
-  (let [files (find-data-files dir)
-        data (parse-data-files files)
+(defn edn [files]
+  (let [data (parse-data-files files)
         complete-outfits (outfits-data data)
         complete-ships (ships-data data complete-outfits)
         complete-modifications (modifications-data data complete-outfits)
@@ -63,6 +62,9 @@
     (with-out-str (clojure.pprint/pprint edn-data))))
 
 (comment
+  (def wfiles (endless-ships.core/find-data-files "game/data/wanderer"))
+  (endless-ships.parser/parse-data-files wfiles)
+
   ;; generate data for frontend development
   (spit "public/data.edn" edn)
   ;; get a list of all possible attribute names
