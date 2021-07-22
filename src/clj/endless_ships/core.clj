@@ -12,7 +12,6 @@
   "Omits files with incomplete ships and outfits that would break the output."
   (let [unwanted-files #{"game/data/deprecated outfits.txt"
                          "game/data/sheragi/archaeology missions.txt"
-                         "game/data/sheragi/archaeology missions.txt"
                          "game/data/remnant/remnant missions.txt"
                          "game/data/korath/nanobots.txt"
                          "gw/data/Ultaka/Ultaka mothership weapon.txt"}]
