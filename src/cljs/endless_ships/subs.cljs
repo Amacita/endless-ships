@@ -139,3 +139,7 @@
 (rf/reg-sub ::game-version
             (fn [db]
               (:version db)))
+
+(rf/reg-sub ::gw-version
+            (fn [db]
+              (:gw-version db)))

@@ -22,6 +22,16 @@
         [name extension] (str/split filename #"\.")]
     (str/join "." [name sha1-hash extension])))
 
+(deftask build-test
+  "Builds a development version of the website without reparsing everything."
+  []
+  (dosh "rm" "-rf" "./build")
+  (dosh "yarn" "install")
+  (dosh "shadow-cljs" "--debug" "compile" "main")
+  (dosh "mkdir" "-p" "./build/js")
+  (dosh "cp" "./public/data.edn" "./public/app.css" "./public/ga.json" "./public/index.html" "./build")
+  (dosh "cp" "./public/js/main.js" "./build/js"))
+
 (deftask build
   "Build the site into build/ directory."
   []

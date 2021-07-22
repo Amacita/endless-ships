@@ -23,6 +23,7 @@
                          :outfits {}
                          :outfitters []
                          :version {}
+                         :gw-version {}
                          :settings (merge {:ships {:ordering {:column-name "Name"
                                                               :order :asc}
                                                    :filters-collapsed? true
@@ -71,7 +72,8 @@
                               :ship-modifications (group-modifications (:ship-modifications data))
                               :outfits (index-by-name (:outfits data))
                               :outfitters (process-outfitters (:outfitters data))
-                              :version (:version data))
+                              :version (:version data)
+                              :gw-version (:gw-version data))
                        (update-in [:settings :ships]
                                   merge
                                   {:race-filter (->> (:ships data)

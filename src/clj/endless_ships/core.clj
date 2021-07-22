@@ -6,12 +6,26 @@
             [endless-ships.outfits :refer [outfits-data]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
-            [endless-ships.parser :refer [parse-data-files]]))
+            [endless-ships.parser :refer [parse-data-files file->relative-path]]))
+
+(defn- remove-unwanted-files [files]
+  "Omits files with incomplete ships and outfits that would break the output."
+  (let [unwanted-files #{"game/data/deprecated outfits.txt"
+                         "game/data/sheragi/archaeology missions.txt"
+                         "game/data/sheragi/archaeology missions.txt"
+                         "game/data/remnant/remnant missions.txt"
+                         "game/data/korath/nanobots.txt"
+                         "gw/data/Ultaka/Ultaka mothership weapon.txt"}]
+    (->> (map file->relative-path files)
+         (remove #(contains? unwanted-files %))
+         (map resource)
+         (map file))))
 
 (defn find-data-files [dir]
   "Finds all data files starting at ./resources/<dir>"
   (->> (file-seq (file (resource dir)))
-       (filter #(.endsWith (.getName %) ".txt"))))
+       (filter #(.endsWith (.getName %) ".txt"))
+       remove-unwanted-files))
 
 (def game-version
   (let [git-cmd (fn [& args]
@@ -93,3 +107,6 @@
                                clojure.string/join
                                (str "#"))]))
        (into {})))
+
+(comment
+  (use 'endless-ships.core :reload-all))
