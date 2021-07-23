@@ -12,7 +12,7 @@
         relPath (subs absPath (+ 1 (count resource-root)))]
     relPath))
 
-(defn ignore-unwanted-map-lines [text]
+(defn- ignore-unwanted-map-lines [lines]
   "Map files are large enough to slow down the parser, so we preprocess them to get rid of unwanted and unnecessary lines."
   (remove
       (some-fn
@@ -32,17 +32,18 @@
         #(str/starts-with? % "\t\tsprite planet/ ")
         #(str/starts-with? % "\t\t\tsprite star/ ")
         #(str/starts-with? % "\t\t\tsprite planet/ "))
-      text))
+      lines))
 
 (defn preprocess
-  "Removes comments and blank lines from the given text. Ensures the text ends in a newline."
+  "Removes comments, blank lines, and other unwanted text."
   [text-str]
-  (let [text-lines        (str/split-lines text-str)
+  (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet) .+\n(\t.*\n)+" "")
+        text-lines        (str/split-lines no-missions)
         lines-no-comments (map #(str/replace % #"#.*" "") text-lines)
         lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
         lines-no-blanks   (remove str/blank? lines-rstrip)
-        text-no-blanks    (str/join \newline lines-no-blanks)
-        ;;map-cleaned       (ignore-unwanted-map-lines text-no-blanks)
+        map-cleaned       (ignore-unwanted-map-lines lines-no-blanks)
+        text-no-blanks    (str/join \newline map-cleaned)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
     end-with-nl))
 
@@ -101,7 +102,12 @@
   (-> wfile slurp preprocess print)
   (endless-ships.core/edn wfiles)
 
+  (def wfile (resource "game/data/wanderer/wanderers middle.txt"))
+
   (use 'endless-ships.parser :reload-all)
+  (def wtext (-> wfile slurp))
+  (def wtext "foo\nmission 'm'\n\titem blah\n\tmoreitem blah2\nbar")
+  (str/replace wtext #"(?m)^mission .+\n(\t.*\n)+" "")
 
   ;; object counts by type
   (->> data
