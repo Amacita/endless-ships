@@ -3,6 +3,7 @@
             [clojure.java.shell :refer [sh]]
             [clojure.set :refer [rename-keys]]
             [clojure.string :as str]
+            [camel-snake-kebab.core :as csk]
             [endless-ships.outfits :refer [outfits-data]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
@@ -74,6 +75,23 @@
                   :gw-version gw-version}]
     (with-out-str (clojure.pprint/pprint edn-data))))
 
+(defn government-colors [files]
+  "Gets government colors in CSS format. The CSS for government labels is maintained by hand."
+  (->> (parse-data-files files)
+       (filter #(= (first %) "government"))
+       (map (fn [[_ [name] {[[colors]] "color"}]]
+              [name colors]))
+       (filter #(some? (second %)))
+       (map (fn [[government colors]]
+              [government (->> colors
+                               (map (partial * 255))
+                               (map int)
+                               (map (partial format "%02x"))
+                               clojure.string/join
+                               (str "#"))]))
+       (map (fn [[government color]]
+              (str ".label-" (csk/->kebab-case-symbol government) " {\n    background-color: " color "\n}\n\n")))))
+
 (comment
   (def wfiles (endless-ships.core/find-data-files "game/data/wanderer"))
   (endless-ships.parser/parse-data-files wfiles)
@@ -92,20 +110,13 @@
                  (update counts object #(inc (or % 0))))
                {})
        (sort-by last >))
-  ;; get government colors in CSS format
-  (->> endless-ships.parser/data
-       (filter #(= (first %) "government"))
-       (map (fn [[_ [name] {[[colors]] "color"}]]
-              [name colors]))
-       (filter #(some? (second %)))
-       (map (fn [[government colors]]
-              [government (->> colors
-                               (map (partial * 255))
-                               (map int)
-                               (map (partial format "%02x"))
-                               clojure.string/join
-                               (str "#"))]))
-       (into {})))
 
-(comment
+  ;; get government colors in CSS format
+  (spit "public/governments.css"
+        (with-out-str
+          (print
+            (government-colors
+              (concat (find-data-files "game/data/governments.txt")
+                      (find-data-files "gw/data/governments.txt"))))))
+
   (use 'endless-ships.core :reload-all))

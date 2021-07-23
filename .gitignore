@@ -5,5 +5,6 @@
 data.edn
 /.shadow-cljs
 /public/js
+/public/governments.css
 /node_modules
 *.swp

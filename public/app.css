@@ -14,6 +14,24 @@
     background-color: #0068b5;
 }
 
+p.italic {
+    font-style: italic;
+}
+
+img.ship-sprite {
+    max-width:  220px;
+    max-height: 220px;
+    width:      auto;
+    height:     auto;
+}
+
+.game-version {
+    float: right;
+    padding: 10px 15px;
+}
+
+/* Vanilla */
+
 .label-hai {
     background-color: #d66bce;
 }
@@ -62,18 +80,168 @@
     background-color: #673737;
 }
 
-p.italic {
-    font-style: italic;
+/* Galactic War */
+
+.label-aumar {
+    background-color: #cc9393
 }
 
-img.ship-sprite {
-    max-width:  220px;
-    max-height: 220px;
-    width:      auto;
-    height:     auto;
+.label-dels {
+    background-color: #16cc3e
 }
 
-.game-version {
-    float: right;
-    padding: 10px 15px;
+.label-dels-dardornai {
+    background-color: #16cc3e
+}
+
+.label-dels-kaote {
+    background-color: #16cc3e
+}
+
+.label-dels-ufulre {
+    background-color: #57e23f
+}
+
+.label-donko {
+    background-color: #ccc729
+}
+
+.label-erader {
+    background-color: #333366
+}
+
+.label-erader-darua {
+    background-color: #333366
+}
+
+.label-erader-kasiva {
+    background-color: #2d3300
+}
+
+.label-erader-mukube {
+    background-color: #2d3300
+}
+
+.label-erader-narpul {
+    background-color: #2d3300
+}
+
+.label-makerurader {
+    background-color: #000000
+}
+
+.label-erm {
+    background-color: #000028
+}
+
+.label-geeva {
+    background-color: #ba1900
+}
+
+.label-ignaggen {
+    background-color: #fc6b00
+}
+
+.label-kager-ignaggen {
+    background-color: #fc4c66
+}
+
+.label-nilra-ignaggen {
+    background-color: #fc0000
+}
+
+.label-nuru {
+    background-color: #194730
+}
+
+.label-kroom {
+    background-color: #33197f
+}
+
+.label-kroom-kakaima {
+    background-color: #33197f
+}
+
+.label-kroom-kanai {
+    background-color: #33197f
+}
+
+.label-kumakk {
+    background-color: #194730
+}
+
+.label-qanse {
+    background-color: #00e201
+}
+
+.label-qoro {
+    background-color: #0100e2
+}
+
+.label-makau-a-qoro {
+    background-color: #0100e2
+}
+
+.label-qoro-siogal {
+    background-color: #00e201
+}
+
+.label-resmakia {
+    background-color: #001933
+}
+
+.label-revos {
+    background-color: #cc44ad
+}
+
+.label-taroun {
+    background-color: #999999
+}
+
+.label-tehru {
+    background-color: #194730
+}
+
+.label-ultaka {
+    background-color: #e86b16
+}
+
+.label-ultaka-mega {
+    background-color: #2b160f
+}
+
+.label-ultaka-alrul {
+    background-color: #2b160f
+}
+
+.label-vareen {
+    background-color: #194730
+}
+
+.label-wallagi {
+    background-color: #194730
+}
+
+.label-yiisk {
+    background-color: #194730
+}
+
+.label-zis {
+    background-color: #0927cc
+}
+
+.label-zis {
+    background-color: #0927cc
+}
+
+.label-zorcn {
+    background-color: #606060
+}
+
+.label-vuskr-zorcn {
+    background-color: #897a7a
+}
+
+.label-xyncil-zorcn {
+    background-color: #194730
 }
