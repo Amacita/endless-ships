@@ -15,6 +15,7 @@
                          "game/data/sheragi/archaeology missions.txt"
                          "game/data/remnant/remnant missions.txt"
                          "game/data/korath/nanobots.txt"
+                         "game/data/human/transport missions.txt"
                          "game/data/persons.txt"
                          "gw/data/Ultaka/Ultaka mothership weapon.txt"}]
     (->> (map file->relative-path files)
