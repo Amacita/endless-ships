@@ -1,6 +1,6 @@
 (ns endless-ships.views.outfits
   (:require [re-frame.core :as rf]
-            [endless-ships.views.utils :refer [license-label kebabize nbspize format-number]]
+            [endless-ships.views.utils :refer [kebabize nbspize format-number]]
             [endless-ships.views.table :refer [table left-cell right-cell]]
             [endless-ships.utils.outfits :as utils]
             [endless-ships.subs :as subs]
@@ -22,7 +22,7 @@
                                                         [right-cell (format-number (value outfit))])
                                                       (-> type-attrs :columns vals))
                                          [left-cell (->> (:licenses outfit)
-                                                         (map license-label)
+                                                         (map (fn [license] @(rf/subscribe [::subs/license-label license])))
                                                          (interpose " "))]])))
                                doall)
                      ordering @(rf/subscribe [::subs/outfits-ordering type])]

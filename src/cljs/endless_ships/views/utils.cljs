@@ -3,25 +3,6 @@
   (:import (goog.i18n NumberFormat)
            (goog.i18n.NumberFormat Format)))
 
-(def license-label-styles
-  {"City-Ship"          "human"
-   "Navy"               "human"
-   "Carrier"            "human"
-   "Cruiser"            "human"
-   "Militia"            "human"
-   "Unfettered Militia" "hai"
-   "Wanderer"           "wanderer"
-   "Wanderer Military"  "wanderer"
-   "Wanderer Outfits"   "wanderer"
-   "Coalition"          "coalition"
-   "Heliarch"           "coalition"
-   "Remnant"            "remnant"
-   "Remnant Capital"    "remnant"})
-
-(defn license-label [license]
-  (let [style (get license-label-styles license)]
-    ^{:key license} [:span.label {:class (str "label-" style)} license]))
-
 (def nbsp "\u00a0")
 
 (defn nbspize [s]

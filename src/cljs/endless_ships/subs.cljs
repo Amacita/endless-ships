@@ -143,3 +143,8 @@
 (rf/reg-sub ::gw-version
             (fn [db]
               (:gw-version db)))
+
+(rf/reg-sub ::license-label
+            (fn [db [_ license]]
+              (let [style (get (:licenses db) license)]
+                ^{:key license} [:span.label {:class (str "label-" style)} license])))

@@ -4,7 +4,7 @@
             [endless-ships.events :as events]
             [endless-ships.subs :as subs]
             [endless-ships.views.table :refer [table left-cell right-cell]]
-            [endless-ships.views.utils :refer [license-label nbsp nbspize kebabize format-number]]
+            [endless-ships.views.utils :refer [nbsp nbspize kebabize format-number]]
             [endless-ships.utils.ships :refer [total-cost or-zero columns]]
             [endless-ships.routes :as routes]
             [clojure.string :as str]))
@@ -62,8 +62,9 @@
     [right-cell]))
 
 (defn license-labels [{:keys [licenses]}]
-  (let [labels (map license-label licenses)]
-    [left-cell (interpose " " labels)]))
+    [left-cell (interpose " "
+                          (map (fn [license] @(rf/subscribe [::subs/license-label license]))
+                               licenses))])
 
 (defn ship-row [name]
   (let [{:keys [race category hull shields mass
