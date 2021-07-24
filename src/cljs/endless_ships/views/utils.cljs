@@ -14,6 +14,11 @@
       (str/replace #"[\?']" "")
       str/lower-case))
 
+(defn race-label [race]
+  ^{:key race} [:span.label
+                {:class (str "label-" (-> race name kebabize))}
+                race])
+
 (defn format-number [num]
   (if (number? num)
     (let [rounded (-> num

@@ -4,7 +4,7 @@
             [endless-ships.events :as events]
             [endless-ships.subs :as subs]
             [endless-ships.views.table :refer [table left-cell right-cell]]
-            [endless-ships.views.utils :refer [nbsp nbspize kebabize format-number]]
+            [endless-ships.views.utils :refer [nbsp nbspize race-label format-number]]
             [endless-ships.utils.ships :refer [total-cost or-zero columns]]
             [endless-ships.routes :as routes]
             [clojure.string :as str]))
@@ -48,11 +48,6 @@
           (if collapsed?
             [:span.glyphicon.glyphicon-menu-down]
             [:span.glyphicon.glyphicon-menu-up])]]))))
-
-(defn race-label [race]
-  ^{:key race} [:span.label
-                {:class (str "label-" (-> race name kebabize))}
-                race])
 
 (defn crew-and-bunks [{:keys [required-crew bunks]}]
   (if (pos? required-crew)

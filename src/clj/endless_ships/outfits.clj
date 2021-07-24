@@ -159,7 +159,8 @@
                       :description (->> description-attrs
                                         (map #(get-in % [0 0]))
                                         vec)
-                      :file file})))
+                      :file file
+                      :race (file->race file)})))
        normalize-weapon-attrs
        (map (fn [outfit]
               (reduce (fn [attrs [attr-name convertor]]

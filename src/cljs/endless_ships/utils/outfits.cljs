@@ -151,6 +151,7 @@
              ["Licenses" {:value :licenses
                           :orderable? false}])
        (concat [["Name" {:value :name}]
+                ["Race" {:value :race}]
                 ["Cost" {:value :cost}]])
        (apply concat)
        (apply array-map)))

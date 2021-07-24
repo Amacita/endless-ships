@@ -1,6 +1,6 @@
 (ns endless-ships.views.outfits
   (:require [re-frame.core :as rf]
-            [endless-ships.views.utils :refer [kebabize nbspize format-number]]
+            [endless-ships.views.utils :refer [kebabize race-label nbspize format-number]]
             [endless-ships.views.table :refer [table left-cell right-cell]]
             [endless-ships.utils.outfits :as utils]
             [endless-ships.subs :as subs]
@@ -16,6 +16,7 @@
                                         ^{:key name}
                                         [:tr
                                          [left-cell ^{:key name} [routes/outfit-link name]]
+                                         [left-cell (race-label (:race outfit))]
                                          [right-cell (format-number (:cost outfit))]
                                          (map-indexed (fn [idx {:keys [value]}]
                                                         ^{:key [(or (value outfit) 0) idx]}
