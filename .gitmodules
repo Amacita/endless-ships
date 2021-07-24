@@ -1,6 +1,8 @@
 [submodule "resources/game"]
 	path = resources/game
 	url = git@github.com:endless-sky/endless-sky.git
+	ignore = all
 [submodule "resources/gw"]
 	path = resources/gw
 	url = git@github.com:1010todd/Galactic-War.git
+	ignore = all
