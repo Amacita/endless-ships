@@ -1,11 +1,19 @@
 (ns endless-ships.parser
   (:require [camel-snake-kebab.core :refer [->kebab-case-keyword]]
             [clojure.string :as str]
-            [clojure.java.io :refer [resource]]
+            [clojure.java.io :refer [file resource]]
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
-(def resource-root (-> (clojure.java.io/resource "game") clojure.java.io/file .getParent))
+(def resource-root (-> (resource "game") file .getParent))
+
+(defn file->race [path]
+  (let [file->race-overrides
+        { "game/data/human/marauders.txt" :pirate
+          "game/data/drak/indigenous.txt" :indigenous }]
+    (get file->race-overrides
+         path
+         (-> path file .getParentFile .getName .toLowerCase keyword))))
 
 (defn file->relative-path [file]
   (let [absPath (-> file .getPath)

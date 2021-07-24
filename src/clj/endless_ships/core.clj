@@ -4,7 +4,7 @@
             [clojure.set :refer [rename-keys]]
             [clojure.string :as str]
             [camel-snake-kebab.core :as csk]
-            [endless-ships.outfits :refer [outfits-data]]
+            [endless-ships.outfits :refer [outfits-data outfits->licenses]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
             [endless-ships.parser :refer [parse-data-files file->relative-path]]))
@@ -73,6 +73,7 @@
                   :ship-modifications complete-modifications
                   :outfits complete-outfits
                   :outfitters complete-outfitters
+                  :licenses (outfits->licenses complete-outfits)
                   :version game-version
                   :gw-version gw-version}]
     (with-out-str (clojure.pprint/pprint edn-data))))
@@ -97,7 +98,6 @@
 (comment
   (def wfiles (endless-ships.core/find-data-files "game/data/wanderer"))
   (endless-ships.parser/parse-data-files wfiles)
-
   ;; generate data for frontend development
   (spit "public/data.edn" edn)
   ;; get a list of all possible attribute names

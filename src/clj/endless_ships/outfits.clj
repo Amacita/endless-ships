@@ -1,5 +1,6 @@
 (ns endless-ships.outfits
-  (:require [endless-ships.parser :refer [->map]]))
+  (:require [endless-ships.parser :refer [->map file->race]]
+            [camel-snake-kebab.core :as csk]))
 
 (defn- update-if-present [m k f]
   (if (contains? m k)
@@ -166,11 +167,7 @@
                       attribute-convertors)))))
 
 (defn outfits-data [data]
-  (->> (outfits data)
-       (remove #(#{"deprecated outfits.txt"
-                   "nanobots.txt"
-                   "transport missions.txt"} (:file %)))
-       (map #(dissoc % :file))))
+  (outfits data))
 
 (defn assoc-outfits-cost [ship outfits-data]
   (let [outfits (:outfits ship)]
@@ -188,7 +185,19 @@
                      0
                      outfits)))))
 
+(defn outfits->licenses [outfits]
+  (let [specials (filter #(= (:category %) "Special") outfits)
+        licenses (filter #(clojure.string/ends-with? (:name %) " License") specials)]
+    (zipmap (map :name licenses)
+            (map #(csk/->kebab-case-string (file->race (:file %))) licenses))))
+
 (comment
+  (use 'endless-ships.outfits :reload-all)
+  ;; list licenses
+  (def wfiles (concat (endless-ships.core/find-data-files "game") (endless-ships.core/find-data-files "gw")))
+  (def db (read-string (endless-ships.core/edn wfiles)))
+  (outfits->licenses (:outfits db))
+
   ;; outfit counts by category
   (->> outfits
        (map :category)

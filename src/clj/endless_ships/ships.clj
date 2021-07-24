@@ -1,21 +1,12 @@
 (ns endless-ships.ships
   (:require [clojure.set :refer [rename-keys]]
-            [endless-ships.parser :refer [->map]]
+            [endless-ships.parser :refer [->map file->race]]
             [endless-ships.outfits :refer [assoc-outfits-cost]]))
 
 (defn- add-key-if [cond key value]
   (if cond
     {key value}
     {}))
-
-(def file->race-overrides
-  {
-   "game/data/human/marauders.txt" :pirate
-   "game/data/drak/indigenous.txt" :indigenous
-   })
-
-(defn file->race [path]
-  (-> path clojure.java.io/file .getParentFile .getName .toLowerCase keyword))
 
 (defn- process-ship [[_
                       [ship-name ship-modification]
@@ -84,8 +75,7 @@
                                :required-crew :bunks :description
                                :guns :turrets :drones :fighters
                                :self-destruct :ramscoop])
-                 (assoc :race (get file->race-overrides (:file %) (file->race (:file %))))
-;                 (dissoc :file)
+                 (assoc :race (file->race (:file %)))
                  (rename-keys {:cost :empty-hull-cost})))
        (map #(assoc-outfits-cost % outfit-data))))
 

@@ -10,10 +10,6 @@
     cursor: pointer;
 }
 
-.label-human {
-    background-color: #0068b5;
-}
-
 p.italic {
     font-style: italic;
 }
@@ -31,6 +27,10 @@ img.ship-sprite {
 }
 
 /* Vanilla */
+
+.label-human {
+    background-color: #0068b5;
+}
 
 .label-hai {
     background-color: #d66bce;

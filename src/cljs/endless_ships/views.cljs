@@ -48,6 +48,7 @@
           [navigation]
           ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-race-filter])))]
           ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-category-filter])))]
+          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-license-filter])))]
 
           ;; Print a list of all ships that don't have a category defined.
           ;; This is important because a ship with a null category will break the website.
