@@ -4,7 +4,7 @@
             [clojure.set :refer [rename-keys]]
             [clojure.string :as str]
             [camel-snake-kebab.core :as csk]
-            [endless-ships.outfits :refer [outfits-data outfits->licenses]]
+            [endless-ships.outfits :refer [outfits-data licenses->race]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
             [endless-ships.parser :refer [parse-data-files file->relative-path]]))
@@ -73,7 +73,7 @@
                   :ship-modifications complete-modifications
                   :outfits complete-outfits
                   :outfitters complete-outfitters
-                  :licenses (outfits->licenses complete-outfits)
+                  :licenses (licenses->race complete-outfits complete-ships)
                   :version game-version
                   :gw-version gw-version}]
     (with-out-str (clojure.pprint/pprint edn-data))))

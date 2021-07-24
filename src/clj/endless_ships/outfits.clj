@@ -1,6 +1,7 @@
 (ns endless-ships.outfits
   (:require [endless-ships.parser :refer [->map file->race]]
-            [camel-snake-kebab.core :as csk]))
+            [camel-snake-kebab.core :as csk]
+            [clojure.string :as str]))
 
 (defn- update-if-present [m k f]
   (if (contains? m k)
@@ -185,18 +186,46 @@
                      0
                      outfits)))))
 
-(defn outfits->licenses [outfits]
-  (let [specials (filter #(= (:category %) "Special") outfits)
-        licenses (filter #(clojure.string/ends-with? (:name %) " License") specials)]
-    (zipmap (map :name licenses)
+(defn- required-licenses [data]
+  "Given outfits or ships, returns a map of all licenses that are required to purchase them."
+  (->> data
+       (filter #(seq (:licenses %)))
+       (map #(select-keys % [:licenses :file]))
+       (map #(list (:licenses %) (file->race (:file %))))
+       set
+       (map (fn [outer]
+              (map (fn [inner]
+                     (list inner (csk/->kebab-case-string (second outer))))
+                   (first outer))))
+       flatten
+       (apply hash-map)))
+
+(defn- defined-licenses [outfits]
+  "Returns a map of all licenses that are defined as special outfits."
+  (let [licenses (filter #(and
+                            (= (:category %) "Special")
+                            (str/ends-with? (:name %) " License"))
+                         outfits)]
+    (zipmap (map #(str/replace (:name %) " License" "") licenses)
             (map #(csk/->kebab-case-string (file->race (:file %))) licenses))))
+
+(defn licenses->race [outfits ships]
+  "Returns a map of all licenses to the race they belong to."
+  (merge
+    (required-licenses outfits)
+    (required-licenses ships)
+    (defined-licenses outfits)))
 
 (comment
   (use 'endless-ships.outfits :reload-all)
-  ;; list licenses
-  (def wfiles (concat (endless-ships.core/find-data-files "game") (endless-ships.core/find-data-files "gw")))
+
+  (def wfiles (concat (endless-ships.core/find-data-files "game/data") (endless-ships.core/find-data-files "gw/data")))
   (def db (read-string (endless-ships.core/edn wfiles)))
-  (outfits->licenses (:outfits db))
+  (defined-licenses (:outfits db))
+  (required-licenses (:outfits db))
+  (required-licenses (:ships db))
+  (licenses->race (:outfits db) (:ships db))
+  (:licenses db)
 
   ;; outfit counts by category
   (->> outfits

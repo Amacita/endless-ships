@@ -42,7 +42,7 @@
         #(str/starts-with? % "\t\t\tsprite planet/ "))
       lines))
 
-(defn preprocess
+(defn- preprocess
   "Removes comments, blank lines, and other unwanted text."
   [text-str]
   (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet) .+\n(\t.*\n)+" "")
