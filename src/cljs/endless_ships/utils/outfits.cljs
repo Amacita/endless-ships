@@ -121,13 +121,13 @@
                                           :order :desc}
                        :columns (array-map "Outfit sp."            {:value :outfit-space}
                                            "Shield damage"         {:value (partial damage :shield-damage)}
-                                           ;"Shield damage / space" {:value #(/ (damage :shield-damage %)
-                                            ;                                   (:outfit-space %))}
+                                           "Shield damage / space" {:value #(/ (damage :shield-damage %)
+                                                                               (:outfit-space %))}
                                            "Hull damage"           {:value (partial damage :hull-damage)}
-                                           ;"Hull damage / space"   {:value #(/ (damage :hull-damage %)
-                                           ;                                    (:outfit-space %))}
-                                           "Firing energy"         {:value #(get-in % [:weapon :firing-energy :per-second])}
-                                           "Firing heat"           {:value #(get-in % [:weapon :firing-heat :per-second])}
+                                           "Hull damage / space"   {:value #(/ (damage :hull-damage %)
+                                                                               (:outfit-space %))}
+                                           ;"Firing energy"         {:value #(get-in % [:weapon :firing-energy :per-second])}
+                                           ;"Firing heat"           {:value #(get-in % [:weapon :firing-heat :per-second])}
                                            "Range"                 {:value #(get-in % [:weapon :range])}
                                            "Fire rate"             {:value #(get-in % [:weapon :shots-per-second])
                                                                     :orderable? false})}

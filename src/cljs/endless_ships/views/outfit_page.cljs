@@ -14,7 +14,7 @@
 
 (defn- image-url [outfit]
   (let [filename (str (-> outfit :thumbnail js/window.encodeURI) ".png")]
-    (str "https://raw.githubusercontent.com/endless-sky/endless-sky/master/images/" filename)))
+    (str "/images/" filename)))
 
 (defn- render-ammo [outfit]
   (when (contains? outfit :ammo)

@@ -33,7 +33,7 @@
                      first
                      js/window.encodeURI
                      (str suffix))]
-    (str "https://raw.githubusercontent.com/endless-sky/endless-sky/master/images/" filename)))
+    (str "/images/" filename)))
 
 (defn ship-modifications [ship-name selected-modification-slug modification-names]
   [:div.panel.panel-default
