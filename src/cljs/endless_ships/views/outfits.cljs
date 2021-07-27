@@ -10,10 +10,13 @@
 (def default-columns
   [{:header "Name"
     :path [:name]
-    :key :name}
+    :key :name
+    :format #(routes/outfit-link %)}
    {:header "Race"
     :path [:race]
-    :key :race}
+    :key :race
+    :format #(race-label %)
+    :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
    {:header "Cost"
     :path [:cost]
     :key :cost
@@ -23,17 +26,13 @@
     :key :outfit-space
     :format format-number}])
 
-(defn- damage [damage-type gun]
-  (get-in gun [:weapon damage-type :per-second]))
-
-
 (def weapon-column-info
   [{:header "Shield damage"
     :path [:weapon :shield-damage :per-second]
     :key :shield-damage
     :format format-number}
    {:header "Shield damage / space"
-    :expr #(/ (damage :shield-damage %) (:outfit-space %))
+    :expr #(/ (get-in % [:weapon :shield-damage :per-second]) (:outfit-space %))
     :key :shield-damage-per-second
     :format format-number}
    {:header "Hull damage"
@@ -41,7 +40,7 @@
     :key :hull-damage
     :format format-number}
    {:header "Hull damage / space"
-    :expr #(/ (damage :hull-damage %) (:outfit-space %))
+    :expr #(/ (get-in % [:weapon :hull-damage :per-second]) (:outfit-space %))
     :key :hull-damage-per-space
     :format format-number}
    {:header "Range"
