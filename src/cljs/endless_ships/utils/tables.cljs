@@ -97,12 +97,11 @@
 (def default-table-config
   {:render-cell cell-fn
    ;:table-state  (atom {:draggable true})
-   :scroll-height "80vh"
+   ;:scroll-height "80vh"
    :sort         sort-fn
    :row-key      row-key-fn
    :table-container {:style {:border "1px solid black"}}
-   :th {:style {:border "1px solid black" :background-color "white"}}
    :column-selection {:ul {:li {:class "btn"}}}
-   :table {:class "table table-hover table-striped table-bordered table-transition"
+   :table {:class "table table-hover table-striped table-bordered table-reactive"
            :style {:border-spacing 0
                    :border-collapse "separate"}}})
