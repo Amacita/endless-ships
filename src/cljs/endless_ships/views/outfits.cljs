@@ -18,6 +18,13 @@
     :key :race
     :format #(race-label %)
     :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
+   {:header "Licenses"
+    :path [:licenses]
+    :key :licenses
+    :format #(interpose " " (map (fn [license] [:span.label
+                                                {:class (str "label-" @(rf/subscribe [::subs/license-style license]))}
+                                                license]) %))
+    :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
    {:header "Cost"
     :path [:cost]
     :key :cost
