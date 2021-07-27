@@ -18,6 +18,18 @@
       :outfit [outfit-page (:outfit/name params)]
       [:div (str "Route unknown: " route)])))
 
+(defn gw-version []
+  (let [{:keys [hash date tag]} @(rf/subscribe [::subs/gw-version])]
+    [:div.game-version
+     (if (some? tag)
+       [:a {:href (str "https://github.com/1010todd/galactic-war/releases/tag/" tag)
+            :target :blank}
+        "Galactic War " tag]
+       [:a {:href (str "https://github.com/1010todd/galactic-war/commit/" hash)
+            :target :blank}
+        "galactic-war@" (subs hash 0 7)])
+     " (" date ")"]))
+
 (defn game-version []
   (let [{:keys [hash date tag]} @(rf/subscribe [::subs/game-version])]
     [:div.game-version
@@ -40,7 +52,9 @@
          [:div.app "Failed to load data."]
          [:div.app
           [game-version]
-          [:pre "GW Version " (with-out-str (print @(rf/subscribe [::subs/gw-version])))]
+          [gw-version]
+          ;[:pre "GW Version " (with-out-str (print @(rf/subscribe [::subs/gw-version])))]
+          ;[:pre "Vanilla Version " (with-out-str (print @(rf/subscribe [::subs/game-version])))]
           [navigation]
 
           ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/license-labels])))]

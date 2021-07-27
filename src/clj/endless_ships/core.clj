@@ -29,9 +29,9 @@
        (filter #(.endsWith (.getName %) ".txt"))
        remove-unwanted-files))
 
-(def game-version
+(defn repo-version [dir]
   (let [git-cmd (fn [& args]
-                  (->> (concat ["git"] args [:dir "./resources/game"])
+                  (->> (concat ["git"] args [:dir dir])
                        (apply sh)
                        :out
                        str/trim))
@@ -39,24 +39,7 @@
         commit-date (-> (git-cmd "show" "-s" "--format=%ci" "HEAD")
                         (str/split #" ")
                         first)
-        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD")
-                                    (str/split #"-"))]
-    (merge {:hash commit-hash
-            :date commit-date}
-           (when (nil? commits-since-tag)
-             {:tag tag}))))
-
-(def gw-version
-  (let [git-cmd (fn [& args]
-                  (->> (concat ["git"] args [:dir "./resources/gw"])
-                       (apply sh)
-                       :out
-                       str/trim))
-        commit-hash (git-cmd "rev-parse" "HEAD")
-        commit-date (-> (git-cmd "show" "-s" "--format=%ci" "HEAD")
-                        (str/split #" ")
-                        first)
-        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD")
+        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD" "--tags")
                                     (str/split #"-"))]
     (merge {:hash commit-hash
             :date commit-date}
@@ -74,8 +57,8 @@
                   :outfits complete-outfits
                   :outfitters complete-outfitters
                   :licenses (licenses->race complete-outfits complete-ships)
-                  :version game-version
-                  :gw-version gw-version}]
+                  :version (repo-version "./resources/game")
+                  :gw-version (repo-version "./resources/gw")}]
     (with-out-str (clojure.pprint/pprint edn-data))))
 
 (defn government-colors [files]
