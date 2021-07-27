@@ -136,6 +136,15 @@
                    (sort-with-settings (outfits/columns-for outfit-type) ordering)
                    (map :name))))
 
+(rf/reg-sub ::outfits-of-type
+            (fn [[_ outfit-type]]
+              [(rf/subscribe [::outfits])
+               (rf/subscribe [::outfits-ordering outfit-type])])
+            (fn [[outfits ordering] [_ outfit-type]]
+              (->> (vals outfits)
+                   (filter (get-in outfits/types [outfit-type :filter]))
+                   (sort-with-settings (outfits/columns-for outfit-type) ordering))))
+
 (rf/reg-sub ::game-version
             (fn [db]
               (:version db)))
