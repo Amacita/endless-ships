@@ -21,9 +21,9 @@
    {:header "Licenses"
     :path [:licenses]
     :key :licenses
-    :format #(interpose " " (map (fn [license] [:span.label
-                                                {:class (str "label-" @(rf/subscribe [::subs/license-style license]))}
-                                                license]) %))
+    :format #(interpose " " (doall (map (fn [license] ^{:key license} [:span.label
+                                                       {:class (str "label-" @(rf/subscribe [::subs/license-style license]))}
+                                                       license]) %)))
     :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
    {:header "Cost"
     :path [:cost]
@@ -241,11 +241,11 @@
 
 (defn outfits []
   [:div.app
-   (map (fn [[type type-attrs]]
-          (let [rows (->> @(rf/subscribe [::subs/outfits-of-type type]))]
-            [:div [:h2 (:header type-attrs)]
-             [rt/reagent-table
-              (atom rows)
-              (merge {:column-model (into [] (concat default-columns (type columns)))}
-                     default-table-config)]]))
-        utils/types)])
+   (doall (map (fn [[type type-attrs]]
+                 (let [rows @(rf/subscribe [::subs/outfits-of-type type])]
+                   ^{:key type} [:div [:h2 (:header type-attrs)]
+                                 [rt/reagent-table
+                                  (atom rows)
+                                  (merge {:column-model (into [] (concat default-columns (type columns)))}
+                                         default-table-config)]]))
+               utils/types))])

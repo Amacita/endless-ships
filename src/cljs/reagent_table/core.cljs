@@ -321,24 +321,23 @@
   [config column-model data-atom state-atom]
   (let [scroll-height   (:scroll-height config)
         table-container (:table-container config)]
-    (r/create-class {
-                     :reagent-render         (fn [] [:div.reagent-table-container
-                                                     (if scroll-height (recursive-merge
-                                                                         table-container
-                                                                         {:tab-index 0
-                                                                          :style     {:height   scroll-height
-                                                                                      :overflow "auto"}})
-                                                                       table-container)
-                                                     [:table.reagent-table (:table config)
-                                                      (when-let [caption (:caption config)]
-                                                        caption)
-                                                      [:thead (:thead config)
-                                                       (header-row-fn column-model
-                                                                      config
-                                                                      data-atom
-                                                                      state-atom)]
-                                                      [:tbody (:tbody config)
-                                                       (rows-fn @data-atom state-atom config)]]])})))
+    (r/create-class { :reagent-render (fn [] [:div.reagent-table-container
+                                              (if scroll-height (recursive-merge
+                                                                  table-container
+                                                                  {:tab-index 0
+                                                                   :style     {:height   scroll-height
+                                                                               :overflow "auto"}})
+                                                table-container)
+                                              [:table.reagent-table (:table config)
+                                               (when-let [caption (:caption config)]
+                                                 caption)
+                                               [:thead (:thead config)
+                                                (header-row-fn column-model
+                                                               config
+                                                               data-atom
+                                                               state-atom)]
+                                               [:tbody (:tbody config)
+                                                (rows-fn @data-atom state-atom config)]]])})))
 
 (defn reagent-table
   "Create a table, rendering the vector held in data-atom and
