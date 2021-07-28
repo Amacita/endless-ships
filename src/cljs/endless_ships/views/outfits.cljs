@@ -249,31 +249,3 @@
               (merge {:column-model (into [] (concat default-columns (type columns)))}
                      default-table-config)]]))
         utils/types)])
-
-(comment
-(defn outfits []
-  [:div.app
-   (->> utils/types
-        (map (fn [[type type-attrs]]
-               (let [rows (->> @(rf/subscribe [::subs/outfit-names type])
-                               (map (fn [name]
-                                      (let [outfit @(rf/subscribe [::subs/outfit name])]
-                                        ^{:key name}
-                                        [:tr
-                                         [left-cell ^{:key name} [routes/outfit-link name]]
-                                         [left-cell (race-label (:race outfit))]
-                                         [right-cell (format-number (:cost outfit))]
-                                         (map-indexed (fn [idx {:keys [value]}]
-                                                        ^{:key [(or (value outfit) 0) idx]}
-                                                        [right-cell (format-number (value outfit))])
-                                                      (-> type-attrs :columns vals))
-                                         [left-cell (->> (:licenses outfit)
-                                                         (map (fn [license] @(rf/subscribe [::subs/license-label license])))
-                                                         (interpose " "))]])))
-                               doall)
-                     ordering @(rf/subscribe [::subs/outfits-ordering type])]
-                 ^{:key type} [:div
-                               [:h2 (:header type-attrs)]
-                               [table type (utils/columns-for type) ordering rows]])))
-        doall)])
-)
