@@ -43,7 +43,7 @@
      " (" date ")"]))
 
 (defn interface []
-  [:div.container
+  [:div.container-fluid
    [:div.row
     [:div.col-lg-12
      (if @(rf/subscribe [::subs/loading?])
