@@ -4,7 +4,6 @@
                 [day8.re-frame/http-fx "v0.2.0"]
                 [bidi "2.1.6"]
                 [kibu/pushy "0.3.8"]
-                [org.clojars.frozenlock/reagent-table "0.1.6"]
                 [cider/cider-nrepl "0.21.0"]]
  :builds {:main {:target :browser
                  :modules {:main {:init-fn endless-ships.core/init}}
