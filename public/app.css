@@ -10,12 +10,6 @@
     cursor: pointer;
 }
 
-table.reagent-table thead th {
-    position: sticky !important;
-    top: 0;
-    background-color: white;
-}
-
 p.italic {
     font-style: italic;
 }
@@ -30,6 +24,14 @@ img.ship-sprite {
 .game-version {
     float: right;
     padding: 10px 15px;
+}
+
+/* reagent-table */
+
+table.reagent-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: white;
 }
 
 /* Vanilla */

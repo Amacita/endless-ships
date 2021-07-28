@@ -232,8 +232,7 @@
                               :col-hover nil
                               :col-reordering nil))
        :style (merge (get-in config [:th :style])
-                     {:position "relative"
-                      :cursor (if draggable "move" nil)
+                     {:cursor (if draggable "move" nil)
                       :display (when (get col-hidden model-col) "none")}
                      (when (and (:col-reordering state)
                                 (= view-col (:col-hover state)))
@@ -407,9 +406,6 @@
     (swap! state-atom assoc :col-index-to-model (init-column-index column-model))
     (fn []
         [:div
-         [:style (str ".reagent-table * table {table-layout:fixed;}"
-                      ".reagent-table * td { max-width: 3px;"
-                      "overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}")]
          (when-let [selector-config (:column-selection config)]
            [column-selector state-atom selector-config column-model])
          [the-table config column-model data-atom state-atom]])))
