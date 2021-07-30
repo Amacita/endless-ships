@@ -13,8 +13,9 @@
        (str "This outfit requires a " license " license.")])))
 
 (defn- image-url [outfit]
-  (let [filename (str (-> outfit :thumbnail js/window.encodeURI) ".png")]
-    (str "/images/" filename)))
+  (let [filename (str (-> outfit :thumbnail js/window.encodeURI) ".png")
+        plugin @(rf/subscribe [::subs/plugin (get-in outfit [:meta :image :origin])])]
+    (str (:base-image-url plugin) filename)))
 
 (defn- render-ammo [outfit]
   (when (contains? outfit :ammo)

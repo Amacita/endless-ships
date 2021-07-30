@@ -1,6 +1,7 @@
 (ns endless-ships.ships
   (:require [clojure.set :refer [rename-keys]]
             [endless-ships.parser :refer [->map file->race]]
+            [endless-ships.plugins :refer [file->plugin image-source]]
             [endless-ships.outfits :refer [assoc-outfits-cost]]))
 
 (defn- add-key-if [cond key value]
@@ -57,6 +58,10 @@
                           (map #(get-in % [0 0]))
                           vec))))
 
+(defn- ship->image-file [ship]
+  (let [[sprite animated] (:sprite ship)]
+    (str sprite ".png")))
+
 (defn ships [data]
   (->> data
        (filter #(and (= (first %) "ship")
@@ -67,7 +72,8 @@
 
 (defn ships-data [data outfit-data]
   (->> (ships data)
-       (map #(-> %
+       (map (fn [cship]
+              (-> cship
                  (select-keys [:name :sprite :licenses :file
                                :cost :category :hull :shields :mass
                                :engine-capacity :weapon-capacity :fuel-capacity
@@ -75,8 +81,11 @@
                                :required-crew :bunks :description
                                :guns :turrets :drones :fighters
                                :self-destruct :ramscoop])
-                 (assoc :race (file->race (:file %)))
-                 (rename-keys {:cost :empty-hull-cost})))
+                 (assoc :race (file->race (:file cship)))
+                 (assoc :plugin (:key (file->plugin (:file cship))))
+                 (assoc-in [:meta :image :file] (ship->image-file cship))
+                 (#(assoc-in % [:meta :image :origin] (image-source %)))
+                 (rename-keys {:cost :empty-hull-cost}))))
        (map #(assoc-outfits-cost % outfit-data))))
 
 (defn modifications [data]
@@ -97,6 +106,10 @@
   (use 'endless-ships.ships :reload-all)
   (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/drak/indigenous.txt")]))
   (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/human/ships.txt")]))
+  (def wships (ships-data wdata {}))
+  (clojure.pprint/pprint (first wships))
+  (clojure.pprint/pprint wships)
+
   (clojure.pprint/pprint wdata)
   (file->race (clojure.java.io/resource "gw/data/Dels/Dels ships.txt"))
   (clojure.pprint/pprint (ships-data wdata []))

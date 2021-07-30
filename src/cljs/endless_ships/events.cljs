@@ -25,6 +25,7 @@
                          :version {}
                          :gw-version {}
                          :licenses {}
+                         :plugins {}
                          :settings (merge {:ships {:ordering {:column-name "Name"
                                                               :order :asc}
                                                    :filters-collapsed? true
@@ -75,7 +76,8 @@
                               :outfitters (process-outfitters (:outfitters data))
                               :version (:version data)
                               :gw-version (:gw-version data)
-                              :licenses (:licenses data))
+                              :licenses (:licenses data)
+                              :plugins (:plugins data))
                        (update-in [:settings :ships]
                                   merge
                                   {:race-filter (->> (:ships data)

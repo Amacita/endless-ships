@@ -7,6 +7,7 @@
             [endless-ships.outfits :refer [outfits-data licenses->race]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
+            [endless-ships.plugins :refer [plugins]]
             [endless-ships.parser :refer [parse-data-files file->relative-path]]))
 
 (defn- remove-unwanted-files [files]
@@ -57,6 +58,7 @@
                   :outfits complete-outfits
                   :outfitters complete-outfitters
                   :licenses (licenses->race complete-outfits complete-ships)
+                  :plugins plugins
                   :version (repo-version "./resources/game")
                   :gw-version (repo-version "./resources/gw")}]
     (with-out-str (clojure.pprint/pprint edn-data))))
@@ -79,8 +81,9 @@
               (str ".label-" (csk/->kebab-case-symbol government) " {\n    background-color: " color "\n}\n\n")))))
 
 (comment
-  (def wfiles (endless-ships.core/find-data-files "game/data/wanderer"))
-  (endless-ships.parser/parse-data-files wfiles)
+  (def wfiles (endless-ships.core/find-data-files "game/data/wanderer/wanderer outfits.txt"))
+  (clojure.pprint/pprint (endless-ships.parser/parse-data-files wfiles))
+  (clojure.pprint/pprint (outfits-data (endless-ships.parser/parse-data-files wfiles)))
   ;; generate data for frontend development
   (spit "public/data.edn" edn)
   ;; get a list of all possible attribute names

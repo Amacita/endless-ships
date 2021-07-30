@@ -162,3 +162,7 @@
             (fn [db [_ license]]
               (let [style (get (:licenses db) license)]
                 style)))
+
+(rf/reg-sub ::plugin
+            (fn [db [_ plugin-key]]
+              (get (:plugins db) plugin-key)))

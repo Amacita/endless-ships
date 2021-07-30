@@ -1,7 +1,11 @@
 (ns endless-ships.outfits
   (:require [endless-ships.parser :refer [->map file->race]]
+            [endless-ships.plugins :refer [file->plugin image-source]]
             [camel-snake-kebab.core :as csk]
             [clojure.string :as str]))
+
+(defn- outfit->image-file [outfit]
+  (str (:thumbnail outfit) ".png"))
 
 (defn- update-if-present [m k f]
   (if (contains? m k)
@@ -143,6 +147,7 @@
                    license-attrs "licenses"
                    weapon-attrs "weapon"
                    [[[category]]] "category"
+                   [[[thumbnail]]] "thumbnail"
                    file "file"
                    :as attrs}]]
               (merge (->map attrs)
@@ -160,13 +165,19 @@
                                         (map #(get-in % [0 0]))
                                         vec)
                       :file file
+                      :thumbnail thumbnail
+                      :plugin (:key (file->plugin file))
                       :race (file->race file)})))
        normalize-weapon-attrs
        (map (fn [outfit]
               (reduce (fn [attrs [attr-name convertor]]
                         (update-if-present attrs attr-name convertor))
                       outfit
-                      attribute-convertors)))))
+                      attribute-convertors)))
+       (map (fn [outfit]
+              (-> outfit
+                  (assoc-in [:meta :image :file] (outfit->image-file outfit))
+                  (#(assoc-in % [:meta :image :origin] (image-source %))))))))
 
 (defn outfits-data [data]
   (outfits data))
@@ -264,3 +275,11 @@
                           (* velocity total-lifetime))
                         (* velocity lifetime))}))
        (sort-by :name)))
+
+(comment
+  (use 'endless-ships.outfits :reload-all)
+  (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/human/outfits.txt")]))
+  (def woutfits (outfits-data wdata))
+  [woutfits]
+  (clojure.pprint/pprint (first woutfits))
+  )
