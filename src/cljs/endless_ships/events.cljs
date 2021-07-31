@@ -34,7 +34,7 @@
                                                    :license-filter {}}}
                                           initial-outfit-settings)}
                     :http-xhrio {:method :get
-                                 :uri "/data.edn"
+                                 :uri "data.edn"
                                  :response-format (ajax/edn-response-format)
                                  :on-success [::data-loaded]
                                  :on-failure [::data-failed-to-load]}}))
