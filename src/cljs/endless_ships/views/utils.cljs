@@ -27,7 +27,7 @@
                       (/ 10))
           formatter (NumberFormat. Format/DECIMAL)]
       (.format formatter (str rounded)))
-    num))
+    "0"))
 
 (defn render-attribute [m prop label]
   (let [v (prop m)]

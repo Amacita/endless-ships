@@ -1,13 +1,78 @@
 (ns endless-ships.views.ships-list
   (:require [re-frame.core :as rf]
             [reagent.core :as ra]
+            [reagent-table.core :as rt]
             [endless-ships.events :as events]
             [endless-ships.subs :as subs]
             [endless-ships.views.table :refer [table left-cell right-cell]]
             [endless-ships.views.utils :refer [nbsp nbspize race-label format-number]]
             [endless-ships.utils.ships :refer [total-cost or-zero columns]]
             [endless-ships.routes :as routes]
+            [endless-ships.utils.tables :refer [default-table-config]]
+            [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
+
+(def default-columns
+  [{:header "Name"
+    :path [:name]
+    :key :name
+    :format #(routes/ship-link %)}
+   {:header "Race"
+    :path [:race]
+    :key :race
+    :format #(race-label %)
+    :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
+   {:header "Licenses"
+    :path [:licenses]
+    :key :licenses
+    :format #(interpose " "
+                        (doall (map (fn [license] @(rf/subscribe [::subs/license-label license])) %)))
+    :attrs (fn [data] {:style {:text-align "center" :display "block"}})}
+   {:header "Cost"
+    :expr #(total-cost %)
+    :key :cost
+    :format format-number}
+   {:header "Category"
+    :path [:category]
+    :key :category
+    :format #(nbspize %)}
+   {:header "Hull"
+    :path [:hull]
+    :key :hull
+    :format format-number}
+   {:header "Shields"
+    :path [:shields]
+    :key :shields
+    :format format-number}
+   {:header "Mass"
+    :path [:mass]
+    :key :mass
+    :format format-number}
+   {:header "Engine Cap."
+    :path [:engine-capacity]
+    :key :engine-capacity
+    :format format-number}
+   {:header "Weapon Cap."
+    :path [:weapon-capacity]
+    :key :weapon-capacity
+    :format format-number}
+   {:header "Fuel Cap."
+    :path [:fuel-capacity]
+    :key :fuel-capacity
+    :format format-number}
+   {:header "Outfit Sp."
+    :path [:outfit-space]
+    :key :outfit-space
+    :format format-number}
+   {:header "Cargo Sp."
+    :path [:cargo-space]
+    :key :cargo-space
+    :format format-number}
+   {:header "Crew / bunks"
+    :expr #(str (format-number (:required-crew %))
+                nbsp "/" nbsp
+                (format-number (:bunks %)))
+    :key :crew-bunks}])
 
 (defn checkbox-group [filter toggling-event]
   (for [[item checked?] filter]
@@ -49,43 +114,15 @@
             [:span.glyphicon.glyphicon-menu-down]
             [:span.glyphicon.glyphicon-menu-up])]]))))
 
-(defn crew-and-bunks [{:keys [required-crew bunks]}]
-  (if (pos? required-crew)
-    [right-cell (str (format-number required-crew)
-                     nbsp "/" nbsp
-                     (format-number bunks))]
-    [right-cell]))
-
-(defn license-labels [{:keys [licenses]}]
-    [left-cell (interpose " "
-                          (map (fn [license] @(rf/subscribe [::subs/license-label license]))
-                               licenses))])
-
-(defn ship-row [name]
-  (let [{:keys [race category hull shields mass
-                engine-capacity weapon-capacity fuel-capacity
-                outfit-space cargo-space] :as ship} @(rf/subscribe [::subs/ship name])]
-    [:tr
-     [left-cell
-      ^{:key name} [routes/ship-link name]]
-     [left-cell (race-label race)]
-     [right-cell (format-number (total-cost ship))]
-     [left-cell (nbspize category)]
-     [right-cell (format-number hull)]
-     [right-cell (format-number shields)]
-     [right-cell (format-number mass)]
-     [right-cell (format-number engine-capacity)]
-     [right-cell (format-number weapon-capacity)]
-     [right-cell (format-number fuel-capacity)]
-     [right-cell (format-number outfit-space)]
-     [right-cell (format-number cargo-space)]
-     [crew-and-bunks ship]
-     [license-labels ship]]))
-
 (defn ships-list []
   [:div.app
    [ships-filter]
-   [table :ships columns @(rf/subscribe [::subs/ships-ordering])
-    (map (fn [name]
-           ^{:key name} [ship-row name])
-         @(rf/subscribe [::subs/ship-names]))]])
+   [rt/reagent-table
+         (atom @(rf/subscribe [::subs/ships]))
+         (merge {:column-model default-columns}
+            default-table-config)]])
+
+   ;[table :ships columns @(rf/subscribe [::subs/ships-ordering])
+    ;(map (fn [name]
+     ;      ^{:key name} [ship-row name])
+      ;   @(rf/subscribe [::subs/ship-names]))]])
