@@ -117,12 +117,8 @@
 (defn ships-list []
   [:div.app
    [ships-filter]
+   ; [:pre (with-out-str (pprint @(rf/subscribe [::subs/filtered-ships])))]])
    [rt/reagent-table
-         (atom @(rf/subscribe [::subs/ships]))
+         (rf/subscribe [::subs/filtered-ships])
          (merge {:column-model default-columns}
             default-table-config)]])
-
-   ;[table :ships columns @(rf/subscribe [::subs/ships-ordering])
-    ;(map (fn [name]
-     ;      ^{:key name} [ship-row name])
-      ;   @(rf/subscribe [::subs/ship-names]))]])

@@ -70,6 +70,21 @@
                    (sort-with-settings ships/columns ordering)
                    (map :name))))
 
+(rf/reg-sub ::filtered-ships
+            (fn []
+              [(rf/subscribe [::ships])
+               (rf/subscribe [::ships-race-filter])
+               (rf/subscribe [::ships-category-filter])
+               (rf/subscribe [::ships-license-filter])])
+            (fn [[all-ships race-filter category-filter license-filter]]
+              (->> all-ships
+                   (filter (fn [ship]
+                             (and (get race-filter (:race ship))
+                                  (get category-filter (:category ship))
+                                  (not-any? (fn [license]
+                                              (not (get license-filter license)))
+                                            (get ship :licenses []))))))))
+
 (rf/reg-sub ::ship
             (fn [db [_ name]]
               (get-in db [:ships (kebabize name)])))
