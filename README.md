@@ -32,3 +32,16 @@ $ ruby -rwebrick -e'WEBrick::HTTPServer.new(:Port => 8000, :DocumentRoot => Dir.
 ```
 
 Then point your browser to [http://localhost:8000](http://localhost:8000).
+
+## Troubleshooting
+
+Here are some things known to break the program.
+
+- Submunitions that don't have a `lifetime` defined.
+- Ships that don't have a `category` defined.
+- Invalid syntax
+   - Missing a space between an attribute and its value, e.g. `"shields"500`
+   - Trying to place a comment with `//` instead of `#`
+   - System names or other identifiers containing `#`
+
+If you want the parser to ignore certain non-conformant files, just add them to the ignore list in `src/plugins.clj`.
