@@ -112,7 +112,7 @@
              range (if (some? submunition)
                      (let [final-velocity (or velocity-override velocity)
                            total-lifetime (+ (or lifetime 0)
-                                             (get-in submunition [:weapon :lifetime]))]
+                                             (get-in submunition [:weapon :lifetime] 1))]
                        (* final-velocity total-lifetime))
                      (* velocity lifetime))
              converted-weapon-attrs (reduce (fn [attrs [attr-name convertor]]
