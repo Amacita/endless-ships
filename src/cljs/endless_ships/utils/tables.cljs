@@ -68,25 +68,25 @@
     :else ;; hope for the best... are there any other possiblities?
     (compare x y)))
 
-(defn- sort-fn
-  "Generic sort function for tabular data. Sort rows using data resolved from
-  the specified columns in the column model."
+(defn- sort-map-fn
+  "Generic sort function for a map of tabular data. Sort rows using data resolved from
+  the specified columns in the column model. Returns a sorted map."
   [rows column-model sorting]
-  (sort (fn [row-x row-y]
-          (reduce
-            (fn [_ sort]
-              (let [column (column-model (first sort))
-                    direction (second sort)
-                    cell-x (cell-data row-x column)
-                    cell-y (cell-data row-y column)
-                    compared (if (= direction :asc)
-                               (compare-vals cell-x cell-y)
-                               (compare-vals cell-y cell-x))]
-                (when-not (zero? compared)
-                  (reduced compared))
-                ))
-            0
-            sorting))
+  (into (sorted-map-by (fn [key-x key-y]
+                         (reduce
+                           (fn [_ sort]
+                             (let [column (column-model (first sort))
+                                   direction (second sort)
+                                   cell-x (cell-data (get rows key-x) column)
+                                   cell-y (cell-data (get rows key-y) column)
+                                   compared (if (= direction :asc)
+                                              (compare [cell-x key-x] [cell-y key-y])
+                                              (compare [cell-y key-y] [cell-x key-x]))]
+                               (when-not (zero? compared)
+                                 (reduced compared))
+                               ))
+                           0
+                           sorting)))
         rows))
 
 (defn- row-key-fn
@@ -99,7 +99,7 @@
    ;:table-state  (atom {:draggable true})
    ;:scroll-height "80vh"
    :th           {:scope "col"}
-   :sort         sort-fn
+   :sort         sort-map-fn
    :row-key      row-key-fn
    :column-selection {:ul {:li {:class "btn"}}}
    :table {:class "table table-hover table-striped table-bordered table-reactive"

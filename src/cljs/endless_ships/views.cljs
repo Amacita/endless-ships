@@ -56,6 +56,7 @@
           ;[:pre "GW Version " (with-out-str (print @(rf/subscribe [::subs/gw-version])))]
           ;[:pre "Vanilla Version " (with-out-str (print @(rf/subscribe [::subs/game-version])))]
           [navigation]
+          [:pre (str "Debug: " (with-out-str (print @(rf/subscribe [::subs/debug]))))]
 
           ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/license-labels])))]
           ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-race-filter])))]

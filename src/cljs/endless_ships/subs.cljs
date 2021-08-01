@@ -181,3 +181,7 @@
 (rf/reg-sub ::plugin
             (fn [db [_ plugin-key]]
               (get (:plugins db) plugin-key)))
+
+(rf/reg-sub ::debug
+            (fn [db]
+              (get-in db [:debug])))

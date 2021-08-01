@@ -3,7 +3,8 @@
             [day8.re-frame.http-fx]
             [ajax.edn :as ajax]
             [endless-ships.views.utils :refer [kebabize]]
-            [endless-ships.utils.outfits :as outfits]))
+            [endless-ships.utils.outfits :as outfits]
+            [clojure.pprint :refer [pprint]]))
 
 (def initial-outfit-settings
   (reduce (fn [settings [name {:keys [initial-ordering]}]]
@@ -116,6 +117,12 @@
 (rf/reg-event-db ::toggle-ordering
                  (fn [db [_ entity-type column]]
                    (toggle-ordering db entity-type column)))
+
+(rf/reg-event-db ::sort-ships
+                 (fn [db [_ sort-fn column-model sorting]]
+                     ;(update-in db [:debug] (fn [old] (with-out-str (print sorting))))
+                     ;(update-in db [:debug] (fn [old] (with-out-str (pprint column-model))))
+                     (update-in db [:ships] #(sort-fn % column-model sorting))))
 
 (rf/reg-event-db ::toggle-ship-filters-visibility
                  (fn [db]

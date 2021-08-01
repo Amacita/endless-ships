@@ -1,90 +1,11 @@
 ;;; Forked from https://github.com/Frozenlock/reagent-table
 
 (ns reagent-table.core
-    (:require [reagent.core :as r]
+    (:require [re-frame.core :as rf]
+              [reagent.core :as r]
               [reagent.dom :as rdom]
-              [goog.events :as events])
-    (:import [goog.events EventType]))
-
-;;; Is the code horrible? Yup! (contributor: not that bad)
-;;; Does it work? Yup! (contributor: by and large)
-;;; Do I have time to clean it up? Not really... (contributor: let's have a go)
-
-(defn- drag-move-fn [on-drag]
-  (fn [evt]
-    (.preventDefault evt) ;; otherwise we select text while resizing
-    (on-drag (.-clientX evt) (.-clientY evt))))
-
-(defn- drag-end-fn [drag-move drag-end]
-  (fn [evt]
-    (events/unlisten js/window EventType.MOUSEMOVE drag-move)
-    (events/unlisten js/window EventType.MOUSEUP @drag-end)))
-
-(defn- dragging [on-drag]
-  (let [drag-move (drag-move-fn on-drag)
-        drag-end-atom (atom nil)
-        drag-end (drag-end-fn drag-move drag-end-atom)]
-    (reset! drag-end-atom drag-end)
-    (events/listen js/window EventType.MOUSEMOVE drag-move)
-    (events/listen js/window EventType.MOUSEUP drag-end)))
-
-; See https://stackoverflow.com/questions/673153/html-table-with-fixed-headers
-(defn- table-scroll
-  "Handler for scrolling events from the table's containing div.
-  Keep the position of the headers apparently fixed while the div
-  is scrolled. Moves <thead>. May be needs to move all <th> for IE..."
-  [e]
-  (let [scroller (.-target e)
-        translate (str "translate(0," (dec (.-scrollTop scroller)) "px)")
-        all-th (.querySelectorAll scroller "th")
-        thead (.querySelector scroller "thead")]
-    ;(doseq [th (array-seq all-th)]  ; may be these for IE ?
-     ; (set! (-> th .-style .-transform) translate))
-    (set! (-> thead .-style .-transform) translate)))
-
-(defn- scroll-to [event direction page]
-  (let [scroller    (.-currentTarget event)
-        cur         (.-scrollTop scroller)
-        view-height (.-clientHeight scroller)
-        cell        (.querySelector scroller "td")
-        scroll-dist (if page view-height
-                             (or (and cell
-                                      (.-clientHeight cell))
-                                 0))]
-    (.preventDefault event)
-    (set! (.-scrollTop scroller)
-          (+ cur (* scroll-dist direction)))))
-
-(defn- wheel-scroll
-  [e]
-  (scroll-to
-    e
-    (if (pos? (.-deltaY e)) 1 -1)
-    false))
-
-(defn- key-scroll
-  [e]
-  (case (.-key e)
-    "ArrowUp"
-    (scroll-to e -1 false)
-    "ArrowDown"
-    (scroll-to e 1 false)
-    "PageDown"
-    (scroll-to e 1 true)
-    "PageUp"
-    (scroll-to e -1 true)
-    " "
-    (scroll-to e 1 false)
-    "default"))
-
-(defn- init-scrolling
-  [scroller]
-  (let [container (rdom/dom-node scroller)]
-    ;    (events/listen container EventType.SCROLL table-scroll) ;leave behind in case switch to goog events
-    ;    ;(events/listen container EventType.WHEEL table-scroll)
-    (.addEventListener container "scroll" table-scroll false)
-    (.addEventListener container "wheel" wheel-scroll false)
-    (.addEventListener container "keydown" key-scroll false)))
+              [reagent.dom :as rdom]
+              [endless-ships.events :as events]))
 
 (defn- recursive-merge
   "Recursively merge hash maps."
@@ -136,25 +57,6 @@
 
 (def default-config {:table
                       {:style {:width nil}}})
-
-(defn- resize-widget [cell-container]
-  [:span {:style {:display "inline-block"
-                  :width "8px"
-                  :position "absolute"
-                  :cursor "ew-resize"
-                  :height "100%"
-                  :top 0
-                  :right 0
-                  ;:background-color "black" ;; for debug
-                  }
-          :on-click #(.stopPropagation %)
-          :on-mouse-down #(let [cell-node (rdom/dom-node cell-container)
-                                init-x (.-clientX %)
-                                init-width (.-clientWidth cell-node)]
-                            (dragging
-                             (fn [x _]
-                               (aset cell-node "width" (- init-width (- init-x x)))))
-                            (.preventDefault %))}])
 
 (defn- update-sort-columns!
   "Maintain multiple sort columns each with individual directions. The
@@ -213,9 +115,8 @@
         sortable      (not (false? (:sortable render-info)))
         sort-click-fn (fn [append]
                         (when sort-fn
-                          (reset! data-atom (sort-fn @data-atom
-                                                     column-model
-                                                     (:sorting (update-sort-columns! model-col state-atom append))))))]
+                          (let [sorting (:sorting (update-sort-columns! model-col state-atom append))]
+                            (rf/dispatch [::events/sort-ships sort-fn column-model sorting]))))]
     [:th
      (recursive-merge
       (:th config)
@@ -252,7 +153,7 @@
           :none nil                          ;; not sortable
           [:span {:style {:opacity "0.3"}}   ;; sortable but not participating
            " ▼"])])
-     [resize-widget (r/current-component)]]))
+     ]))
 
 
 (defn- header-row-fn [column-model config data-atom state-atom]
