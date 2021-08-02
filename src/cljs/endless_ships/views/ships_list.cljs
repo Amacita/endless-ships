@@ -120,5 +120,5 @@
    ; [:pre (with-out-str (pprint @(rf/subscribe [::subs/filtered-ships])))]])
    [rt/reagent-table
          (rf/subscribe [::subs/filtered-ships])
-         (merge {:column-model default-columns}
+         (merge {:column-model default-columns, :data-root-key :ships}
             default-table-config)]])

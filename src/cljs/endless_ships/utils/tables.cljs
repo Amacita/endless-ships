@@ -89,27 +89,6 @@
             sorting))
         rows))
 
-(defn- sort-map-fn
-  "Generic sort function for a map of tabular data. Sort rows using data resolved from
-  the specified columns in the column model. Returns a sorted map."
-  [rows column-model sorting]
-  (into (sorted-map-by (fn [key-x key-y]
-                         (reduce
-                           (fn [_ sort]
-                             (let [column (column-model (first sort))
-                                   direction (second sort)
-                                   cell-x (cell-data (get rows key-x) column)
-                                   cell-y (cell-data (get rows key-y) column)
-                                   compared (if (= direction :asc)
-                                              (compare [cell-x key-x] [cell-y key-y])
-                                              (compare [cell-y key-y] [cell-x key-x]))]
-                               (when-not (zero? compared)
-                                 (reduced compared))
-                               ))
-                           0
-                           sorting)))
-        rows))
-
 (defn- row-key-fn
   "Return the reagent row key for the given row"
   [row row-num]

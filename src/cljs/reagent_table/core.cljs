@@ -111,12 +111,13 @@
         col-hidden    (:col-hidden state)
         {:keys [draggable]} state
         sort-fn       (:sort config)
+        data-root-key (:data-root-key config)
         column-model  (:column-model config)
         sortable      (not (false? (:sortable render-info)))
         sort-click-fn (fn [append]
-                        (when sort-fn
+                        (when (and sort-fn data-root-key)
                           (let [sorting (:sorting (update-sort-columns! model-col state-atom append))]
-                            (rf/dispatch [::events/sort-ships sort-fn column-model sorting]))))]
+                            (rf/dispatch [::events/sort-data data-root-key sort-fn column-model sorting]))))]
     [:th
      (recursive-merge
       (:th config)

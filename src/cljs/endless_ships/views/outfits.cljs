@@ -245,6 +245,7 @@
                  ^{:key type} [:div [:h2 (:header type-attrs)]
                                [rt/reagent-table
                                 (rf/subscribe [::subs/outfits-of-type type])
-                                (merge {:column-model (into [] (concat default-columns (type columns)))}
+                                (merge {:column-model (into [] (concat default-columns (type columns))),
+                                        :data-root-key :outfits}
                                        default-table-config)]])
                utils/types))])

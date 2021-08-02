@@ -118,11 +118,11 @@
                  (fn [db [_ entity-type column]]
                    (toggle-ordering db entity-type column)))
 
-(rf/reg-event-db ::sort-ships
-                 (fn [db [_ sort-fn column-model sorting]]
+(rf/reg-event-db ::sort-data
+                 (fn [db [_ data-root-key sort-fn column-model sorting]]
                      ;(update-in db [:debug] (fn [old] (with-out-str (print sorting))))
                      ;(update-in db [:debug] (fn [old] (with-out-str (pprint column-model))))
-                     (update-in db [:ships] #(sort-fn % column-model sorting))))
+                     (update-in db [data-root-key] #(sort-fn % column-model sorting))))
 
 (rf/reg-event-db ::toggle-ship-filters-visibility
                  (fn [db]
