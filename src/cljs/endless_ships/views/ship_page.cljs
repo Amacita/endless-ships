@@ -63,7 +63,8 @@
 
 (defn ship-page [ship-name ship-modification]
   (let [ship @(rf/subscribe [::subs/ship ship-name])
-        outfits @(rf/subscribe [::subs/outfits])
+        all-outfit-list @(rf/subscribe [::subs/outfits])
+        outfits (zipmap (map :name all-outfit-list) all-outfit-list)
         modification-names @(rf/subscribe [::subs/ship-modifications-names ship-name])
         selected-modification (if (some? ship-modification)
                                 @(rf/subscribe [::subs/ship-modification ship-name ship-modification])
@@ -71,7 +72,7 @@
         ship-with-modification (merge ship selected-modification)
         ship-outfits (->> (:outfits ship-with-modification)
                           (map (fn [{:keys [name quantity]}]
-                                 (let [outfit (get outfits (kebabize name))]
+                                 (let [outfit (get outfits name)]
                                    {:outfit outfit
                                     :quantity quantity})))
                           (group-by #(get-in % [:outfit :category])))]
