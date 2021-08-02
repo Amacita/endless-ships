@@ -12,6 +12,7 @@
 (defn- process-ship [[_
                       [ship-name ship-modification]
                       {[[[sprite] animation]] "sprite"
+                       [[[thumbnail]]] "thumbnail"
                        [[_ {[[_ license-attrs]] "licenses"
                             [[_ weapon-attrs]] "weapon"
                             :as attrs}]] "attributes"
@@ -31,6 +32,9 @@
          (add-key-if (contains? ship "sprite")
                      :sprite
                      [sprite (not (empty? animation))])
+         (add-key-if (contains? ship "thumbnail")
+                     :thumbnail
+                     thumbnail)
          (add-key-if (contains? attrs "licenses")
                      :licenses
                      (-> license-attrs keys vec))
@@ -58,10 +62,6 @@
                           (map #(get-in % [0 0]))
                           vec))))
 
-(defn- ship->image-file [ship]
-  (let [[sprite animated] (:sprite ship)]
-    (str sprite ".png")))
-
 (defn ships [data]
   (->> data
        (filter #(and (= (first %) "ship")
@@ -70,11 +70,17 @@
        (map #(-> (process-ship %)
                  (dissoc :modification)))))
 
+(defn- ship->image-file [ship]
+  (cond
+    (contains? ship :thumbnail) (str (:thumbnail ship) ".png")
+    (and (contains? ship :sprite) (false? (second (:sprite ship)))) (str (first (:sprite ship)) ".png")
+    :else "animation-detection-does-not-exist"))
+
 (defn ships-data [data outfit-data]
   (->> (ships data)
        (map (fn [cship]
               (-> cship
-                 (select-keys [:name :sprite :licenses :file
+                 (select-keys [:name :sprite :thumbnail :licenses :file
                                :cost :category :hull :shields :mass
                                :engine-capacity :weapon-capacity :fuel-capacity
                                :outfits :outfit-space :cargo-space
@@ -109,6 +115,7 @@
   (def wships (ships-data wdata {}))
   (clojure.pprint/pprint (first wships))
   (clojure.pprint/pprint wships)
+  (clojure.pprint/pprint (first wdata))
 
   (clojure.pprint/pprint wdata)
   (file->race (clojure.java.io/resource "gw/data/Dels/Dels ships.txt"))

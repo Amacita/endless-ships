@@ -12,28 +12,9 @@
     [:p.italic (str "This ship requires a " license1 " license.")]))
 
 (defn- image-url [ship]
-  (let [suffix (cond
-                 (= (:name ship) "Shuttle")
-                 "=0.png"
-
-                 (and (= (:name ship) "Void Sprite")
-                      (not (contains? ship :modification)))
-                 "-00.png"
-
-                 (= (:name ship) "Maeri'het")
-                 "-00.png"
-
-                 (last (:sprite ship))
-                 "-0.png"
-
-                 :else
-                 ".png")
-        filename (-> ship
-                     :sprite
-                     first
-                     js/window.encodeURI
-                     (str suffix))]
-    (str "/images/" filename)))
+  (let [filename (get-in ship [:meta :image :file])
+        plugin-dir (:base-image-url @(rf/subscribe [::subs/plugin (get-in ship [:meta :image :origin])]))]
+    (js/window.encodeURI (str plugin-dir filename))))
 
 (defn ship-modifications [ship-name selected-modification-slug modification-names]
   [:div.panel.panel-default
