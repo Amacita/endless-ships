@@ -52,24 +52,6 @@
             (constantly 0))
           coll)))
 
-(rf/reg-sub ::ship-names
-            (fn []
-              [(rf/subscribe [::ships])
-               (rf/subscribe [::ships-ordering])
-               (rf/subscribe [::ships-race-filter])
-               (rf/subscribe [::ships-category-filter])
-               (rf/subscribe [::ships-license-filter])])
-            (fn [[all-ships ordering race-filter category-filter license-filter]]
-              (->> all-ships
-                   (filter (fn [ship]
-                             (and (get race-filter (:race ship))
-                                  (get category-filter (:category ship))
-                                  (not-any? (fn [license]
-                                              (not (get license-filter license)))
-                                            (get ship :licenses [])))))
-                   (sort-with-settings ships/columns ordering)
-                   (map :name))))
-
 (rf/reg-sub ::filtered-ships
             (fn []
               [(rf/subscribe [::ships])
@@ -85,6 +67,7 @@
                                               (not (get license-filter license)))
                                             (get ship :licenses []))))))))
 
+; Linear search
 (rf/reg-sub ::ship
             (fn [db [_ name]]
               (first (filter #(= name (kebabize (:name %))) (:ships db)))))
@@ -103,13 +86,14 @@
             (fn [db [_ ship-name modification-name]]
               (get-in db [:ship-modifications ship-name modification-name])))
 
+; Linear search
 (rf/reg-sub ::outfit
             (fn [db [_ name]]
-              (get-in db [:outfits (kebabize name)])))
+              (first (filter #(= name (kebabize (:name %))) (:outfits db)))))
 
 (rf/reg-sub ::outfit-installations
             (fn [db [_ name]]
-              (->> (concat (-> db :ships vals)
+              (->> (concat (:ships db)
                            (->> (:ship-modifications db)
                                 vals
                                 (mapcat vals)))
@@ -141,24 +125,12 @@
             (fn [db [_ outfit-type]]
               (get-in db [:settings outfit-type :ordering])))
 
-(rf/reg-sub ::outfit-names
-            (fn [[_ outfit-type]]
-              [(rf/subscribe [::outfits])
-               (rf/subscribe [::outfits-ordering outfit-type])])
-            (fn [[outfits ordering] [_ outfit-type]]
-              (->> (vals outfits)
-                   (filter (get-in outfits/types [outfit-type :filter]))
-                   (sort-with-settings (outfits/columns-for outfit-type) ordering)
-                   (map :name))))
-
 (rf/reg-sub ::outfits-of-type
             (fn [[_ outfit-type]]
               [(rf/subscribe [::outfits])
                (rf/subscribe [::outfits-ordering outfit-type])])
             (fn [[outfits ordering] [_ outfit-type]]
-              (->> (vals outfits)
-                   (filter (get-in outfits/types [outfit-type :filter]))
-                   (sort-with-settings (outfits/columns-for outfit-type) ordering))))
+              (filter (get-in outfits/types [outfit-type :filter]) outfits)))
 
 (rf/reg-sub ::game-version
             (fn [db]

@@ -73,7 +73,7 @@
                        (assoc :loading? false
                               :ships (:ships data)
                               :ship-modifications (group-modifications (:ship-modifications data))
-                              :outfits (index-by-name (:outfits data))
+                              :outfits (:outfits data)
                               :outfitters (process-outfitters (:outfitters data))
                               :version (:version data)
                               :gw-version (:gw-version data)
