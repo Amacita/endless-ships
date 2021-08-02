@@ -60,3 +60,9 @@
   (let [edn (core/edn (concat (core/find-data-files "game/data")
                               (core/find-data-files "gw/data")))]
     (spit "public/data.edn" edn)))
+
+(deftask generate-small-data
+  "Generate data.edn based on a small amount of data, useful for rapid testing."
+  []
+  (let [edn (core/edn (concat (core/find-data-files "game/data/wanderer")))]
+    (spit "public/data.edn" edn)))
