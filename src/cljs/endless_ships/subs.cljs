@@ -107,10 +107,7 @@
                                       :quantity (:quantity ship-outfit)})
                                installations))
                            [])
-                   (sort-by (juxt (fn [{:keys [quantity]}]
-                                    (- quantity))
-                                  (fn [{:keys [ship-name ship-modification]}]
-                                    (or ship-modification ship-name)))))))
+                   (sort-by (juxt :ship-name :ship-modification)))))
 
 (rf/reg-sub ::outfit-planets
             (fn [db [_ name]]
