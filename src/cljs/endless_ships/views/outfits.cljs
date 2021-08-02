@@ -164,6 +164,10 @@
      :path [:shield-energy]
      :key :shield-energy
      :format format-number}
+    {:header "Shield/energy"
+     :expr #(/ (:shield-generation %) (:shield-energy %))
+     :key :shield-generation-per-energy
+     :format format-number}
     {:header "Shield heat"
      :path [:shield-heat]
      :key :shield-heat
@@ -181,6 +185,10 @@
     {:header "Hull energy"
      :path [:hull-energy]
      :key :hull-energy
+     :format format-number}
+    {:header "Hull/energy"
+     :expr #(/ (:hull-repair-rate %) (:hull-energy %))
+     :key :hull-repair-per-energy
      :format format-number}
     {:header "Hull heat"
      :path [:hull-heat]
