@@ -71,7 +71,7 @@
                  (fn [db [_ data]]
                    (-> db
                        (assoc :loading? false
-                              :ships (index-by-name (:ships data))
+                              :ships (:ships data)
                               :ship-modifications (group-modifications (:ship-modifications data))
                               :outfits (index-by-name (:outfits data))
                               :outfitters (process-outfitters (:outfitters data))

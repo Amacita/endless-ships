@@ -18,7 +18,7 @@
 
 (rf/reg-sub ::ships
             (fn [db]
-              (-> db :ships vals)))
+              (-> db :ships)))
 
 (rf/reg-sub ::ships-ordering
             (fn [db]
@@ -87,7 +87,7 @@
 
 (rf/reg-sub ::ship
             (fn [db [_ name]]
-              (get-in db [:ships (kebabize name)])))
+              (first (filter #(= name (kebabize (:name %))) (:ships db)))))
 
 (rf/reg-sub ::outfits
             (fn [db]

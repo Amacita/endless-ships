@@ -68,6 +68,27 @@
     :else ;; hope for the best... are there any other possiblities?
     (compare x y)))
 
+(defn- sort-fn
+  "Generic sort function for tabular data. Sort rows using data resolved from
+  the specified columns in the column model."
+  [rows column-model sorting]
+  (sort (fn [row-x row-y]
+          (reduce
+            (fn [_ sort]
+              (let [column (column-model (first sort))
+                    direction (second sort)
+                    cell-x (cell-data row-x column)
+                    cell-y (cell-data row-y column)
+                    compared (if (= direction :asc)
+                               (compare-vals cell-x cell-y)
+                               (compare-vals cell-y cell-x))]
+                (when-not (zero? compared)
+                  (reduced compared))
+                ))
+            0
+            sorting))
+        rows))
+
 (defn- sort-map-fn
   "Generic sort function for a map of tabular data. Sort rows using data resolved from
   the specified columns in the column model. Returns a sorted map."
@@ -99,7 +120,7 @@
    ;:table-state  (atom {:draggable true})
    ;:scroll-height "80vh"
    :th           {:scope "col"}
-   :sort         sort-map-fn
+   :sort         sort-fn
    :row-key      row-key-fn
    :column-selection {:ul {:li {:class "btn"}}}
    :table {:class "table table-hover table-striped table-bordered table-reactive"
