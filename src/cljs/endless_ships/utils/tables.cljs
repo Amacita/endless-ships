@@ -68,7 +68,7 @@
     :else ;; hope for the best... are there any other possiblities?
     (compare x y)))
 
-(defn- sort-fn
+(defn table-sort-fn
   "Generic sort function for tabular data. Sort rows using data resolved from
   the specified columns in the column model."
   [rows column-model sorting]
@@ -99,7 +99,7 @@
    ;:table-state  (atom {:draggable true})
    ;:scroll-height "80vh"
    :th           {:scope "col"}
-   :sort         sort-fn
+   :sort         table-sort-fn
    :row-key      row-key-fn
    :column-selection {:ul {:li {:class "btn"}}}
    :table {:class "table table-hover table-striped table-bordered table-reactive"

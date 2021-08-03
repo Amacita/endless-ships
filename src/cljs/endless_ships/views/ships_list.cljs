@@ -12,7 +12,47 @@
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
 
-(def default-columns
+(defn checkbox-group [filter toggling-event]
+  (for [[item checked?] filter]
+    ^{:key item} [:div.checkbox
+                  [:label
+                   [:input {:type "checkbox"
+                            :checked checked?
+                            :on-change #(rf/dispatch [toggling-event item])}]
+                   (str/capitalize (name item))]]))
+
+(defn ships-filter []
+  (let [height (ra/atom nil)]
+    (fn []
+      (let [collapsed? @(rf/subscribe [::subs/ship-filters-collapsed?])
+            race-filter @(rf/subscribe [::subs/ships-race-filter])
+            category-filter @(rf/subscribe [::subs/ships-category-filter])
+            license-filter @(rf/subscribe [::subs/ships-license-filter])]
+        [:div.filters-group
+         [:div {:style {:overflow "hidden"
+                        :transition "max-height 0.8s"
+                        :max-height (if collapsed? 0 @height)}}
+          [:div.container-fluid
+           {:ref #(when % (reset! height (.-clientHeight %)))}
+           [:div.row
+            [:div.col-lg-2.col-md-3
+             [:strong "Race"]
+             (checkbox-group race-filter ::events/toggle-ships-race-filter)]
+            [:div.col-lg-2.col-md-3
+             [:strong "Category"]
+             (checkbox-group category-filter ::events/toggle-ships-category-filter)]
+            [:div.col-lg-2.col-md-3
+             [:strong "License"]
+             (checkbox-group license-filter ::events/toggle-ships-license-filter)]]]]
+         [:button.btn.btn-default
+          {:type "button"
+           :on-click #(rf/dispatch [::events/toggle-ship-filters-visibility])}
+          "Filters "
+          (if collapsed?
+            [:span.glyphicon.glyphicon-menu-down]
+            [:span.glyphicon.glyphicon-menu-up])]]))))
+
+(def table-columns
   [{:header "Name"
     :path [:name]
     :key :name
@@ -74,51 +114,10 @@
                 (format-number (:bunks %)))
     :key :crew-bunks}])
 
-(defn checkbox-group [filter toggling-event]
-  (for [[item checked?] filter]
-    ^{:key item} [:div.checkbox
-                  [:label
-                   [:input {:type "checkbox"
-                            :checked checked?
-                            :on-change #(rf/dispatch [toggling-event item])}]
-                   (str/capitalize (name item))]]))
-
-(defn ships-filter []
-  (let [height (ra/atom nil)]
-    (fn []
-      (let [collapsed? @(rf/subscribe [::subs/ship-filters-collapsed?])
-            race-filter @(rf/subscribe [::subs/ships-race-filter])
-            category-filter @(rf/subscribe [::subs/ships-category-filter])
-            license-filter @(rf/subscribe [::subs/ships-license-filter])]
-        [:div.filters-group
-         [:div {:style {:overflow "hidden"
-                        :transition "max-height 0.8s"
-                        :max-height (if collapsed? 0 @height)}}
-          [:div.container-fluid
-           {:ref #(when % (reset! height (.-clientHeight %)))}
-           [:div.row
-            [:div.col-lg-2.col-md-3
-             [:strong "Race"]
-             (checkbox-group race-filter ::events/toggle-ships-race-filter)]
-            [:div.col-lg-2.col-md-3
-             [:strong "Category"]
-             (checkbox-group category-filter ::events/toggle-ships-category-filter)]
-            [:div.col-lg-2.col-md-3
-             [:strong "License"]
-             (checkbox-group license-filter ::events/toggle-ships-license-filter)]]]]
-         [:button.btn.btn-default
-          {:type "button"
-           :on-click #(rf/dispatch [::events/toggle-ship-filters-visibility])}
-          "Filters "
-          (if collapsed?
-            [:span.glyphicon.glyphicon-menu-down]
-            [:span.glyphicon.glyphicon-menu-up])]]))))
-
 (defn ships-list []
   [:div.app
    [ships-filter]
    ; [:pre (with-out-str (pprint @(rf/subscribe [::subs/filtered-ships])))]])
-   [rt/reagent-table
-         (rf/subscribe [::subs/filtered-ships])
-         (merge {:column-model default-columns, :data-root-key :ships}
-            default-table-config)]])
+   (let [config (merge {:column-model table-columns, :data-root-key :ships}
+                       default-table-config)]
+     [rt/reagent-table (rf/subscribe [::subs/filtered-ships]) config])])

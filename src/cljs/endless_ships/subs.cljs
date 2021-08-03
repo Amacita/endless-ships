@@ -2,6 +2,7 @@
   (:require [re-frame.core :as rf]
             [endless-ships.utils.ships :as ships]
             [endless-ships.utils.outfits :as outfits]
+            [endless-ships.utils.tables :as tables]
             [endless-ships.views.utils :refer [kebabize]]))
 
 (rf/reg-sub ::loading?
@@ -19,10 +20,6 @@
 (rf/reg-sub ::ships
             (fn [db]
               (-> db :ships)))
-
-(rf/reg-sub ::ships-ordering
-            (fn [db]
-              (get-in db [:settings :ships :ordering])))
 
 (rf/reg-sub ::ship-filters-collapsed?
             (fn [db]
@@ -55,10 +52,11 @@
 (rf/reg-sub ::filtered-ships
             (fn []
               [(rf/subscribe [::ships])
+               (rf/subscribe [::entity-ordering :ships])
                (rf/subscribe [::ships-race-filter])
                (rf/subscribe [::ships-category-filter])
                (rf/subscribe [::ships-license-filter])])
-            (fn [[all-ships race-filter category-filter license-filter]]
+            (fn [[all-ships ordering race-filter category-filter license-filter]]
               (->> all-ships
                    (filter (fn [ship]
                              (and (get race-filter (:race ship))
@@ -66,6 +64,7 @@
                                   (not-any? (fn [license]
                                               (not (get license-filter license)))
                                             (get ship :licenses []))))))))
+                   ;#(tables/table-sort-fn % :nothingtoseehere ordering))))
 
 ; Linear search
 (rf/reg-sub ::ship
@@ -118,14 +117,14 @@
                    (into #{})
                    (sort-by :name))))
 
-(rf/reg-sub ::outfits-ordering
-            (fn [db [_ outfit-type]]
-              (get-in db [:settings outfit-type :ordering])))
+(rf/reg-sub ::entity-ordering
+            (fn [db [_ entity-type]]
+              (get-in db [:settings entity-type :ordering])))
 
 (rf/reg-sub ::outfits-of-type
             (fn [[_ outfit-type]]
               [(rf/subscribe [::outfits])
-               (rf/subscribe [::outfits-ordering outfit-type])])
+               (rf/subscribe [::entity-ordering outfit-type])])
             (fn [[outfits ordering] [_ outfit-type]]
               (filter (get-in outfits/types [outfit-type :filter]) outfits)))
 
@@ -154,3 +153,7 @@
 (rf/reg-sub ::debug
             (fn [db]
               (get-in db [:debug])))
+
+(rf/reg-sub ::settings
+            (fn [db]
+              (get-in db [:settings])))

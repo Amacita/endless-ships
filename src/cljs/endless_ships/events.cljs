@@ -103,25 +103,22 @@
                  (fn [db [_ route]]
                    (assoc db :route route)))
 
-(defn- toggle-ordering [db entity-type column]
-  (update-in db
-             [:settings entity-type :ordering]
-             (fn [{:keys [column-name order]}]
-               (cond
-                 (not= column-name column) {:column-name column
-                                            :order :desc}
-                 (= order :asc) {:column-name nil}
-                 :else {:column-name column
-                        :order :asc}))))
-
 (rf/reg-event-db ::toggle-ordering
-                 (fn [db [_ entity-type column]]
-                   (toggle-ordering db entity-type column)))
+                 (fn [db [_ entity-type column append]]
+                   (update-in db
+                              [:settings entity-type :ordering]
+                              (fn [{:keys [column-name order]}]
+                                (cond
+                                  (not= column-name column) {:column-name column
+                                                             :order :desc}
+                                  (= order :asc) {:column-name nil}
+                                  :else {:column-name column
+                                         :order :asc})))))
 
 (rf/reg-event-db ::sort-data
                  (fn [db [_ data-root-key sort-fn column-model sorting]]
-                     ;(update-in db [:debug] (fn [old] (with-out-str (print sorting))))
                      ;(update-in db [:debug] (fn [old] (with-out-str (pprint column-model))))
+                     ;(update-in db [:debug] (fn [old] (with-out-str (print (str data-root-key " " sorting)))))
                      (update-in db [data-root-key] #(sort-fn % column-model sorting))))
 
 (rf/reg-event-db ::toggle-ship-filters-visibility
