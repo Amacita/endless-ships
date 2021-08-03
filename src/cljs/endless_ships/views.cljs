@@ -53,18 +53,7 @@
          [:div.app
           [game-version]
           [gw-version]
-          ;[:pre "GW Version " (with-out-str (print @(rf/subscribe [::subs/gw-version])))]
-          ;[:pre "Vanilla Version " (with-out-str (print @(rf/subscribe [::subs/game-version])))]
           [navigation]
-          ;[:pre (str "Debug: " (with-out-str (print @(rf/subscribe [::subs/debug]))))]
-          [:pre (str "Settings: " (with-out-str (pprint @(rf/subscribe [::subs/settings]))))]
-
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/license-labels])))]
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-race-filter])))]
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-category-filter])))]
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships-license-filter])))]
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/ships])))]
-          ;[:pre (with-out-str (pprint @(rf/subscribe [::subs/license-label "Navy"])))]
 
           ;; Print a list of all ships that don't have a category defined.
           ;; This is important because a ship with a null category will break the website.
