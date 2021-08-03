@@ -1,5 +1,4 @@
-(ns endless-ships.utils.tables
-  (:require [reagent-table.core :as rt]))
+(ns endless-ships.utils.tables)
 
 (defn- cell-data
   "Resolve the data within a row for a specific column"

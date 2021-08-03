@@ -158,3 +158,11 @@
 (rf/reg-sub ::settings
             (fn [db]
               (get-in db [:settings])))
+
+(rf/reg-sub ::sort-mode
+            (fn [entity-type model-col]
+              [(rf/subscribe [::entity-ordering :ships])])
+            (fn [[ordering] [_ entity-type model-col]]
+              (-> (filter #(= (first %) model-col) ordering)
+                  first
+                  second)))

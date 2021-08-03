@@ -5,6 +5,7 @@
               [reagent.core :as r]
               [reagent.dom :as rdom]
               [reagent.dom :as rdom]
+              [endless-ships.subs :as subs]
               [endless-ships.events :as events]))
 
 (defn- recursive-merge
@@ -116,10 +117,9 @@
                        :right "15px"
                        :cursor "pointer"}
                :on-click #(sort-click-fn (.-ctrlKey %))}
-        (condp = (is-sorting (:sorting state) render-info model-col)
+        (condp = @(rf/subscribe [::subs/sort-mode data-root-key model-col])
           :asc " ▲"
           :desc " ▼"
-          :none nil                          ;; not sortable
           [:span {:style {:opacity "0.3"}}   ;; sortable but not participating
            " ▼"])])
      ]))
@@ -278,3 +278,9 @@
          (when-let [selector-config (:column-selection config)]
            [column-selector state-atom selector-config column-model])
          [the-table config column-model data-atom state-atom]])))
+
+
+(comment
+  [@(rf/subscribe [::subs/sort-mode :ships 4])]
+  [@(rf/subscribe [::subs/entity-ordering :ships])]
+  )
