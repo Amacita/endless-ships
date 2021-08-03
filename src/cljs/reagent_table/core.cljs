@@ -82,11 +82,12 @@
         {:keys [draggable]} state
         sort-fn       (:sort config)
         data-root-key (:data-root-key config)
+        entity-type    (:entity-type config)
         column-model  (:column-model config)
         sortable      (not (false? (:sortable render-info)))
         sort-click-fn (fn [append]
                         (when (and sort-fn data-root-key)
-                          (rf/dispatch [::events/toggle-ordering data-root-key model-col append])))]
+                          (rf/dispatch [::events/toggle-ordering entity-type model-col append])))]
     [:th
      (recursive-merge
       (:th config)
@@ -117,7 +118,7 @@
                        :right "15px"
                        :cursor "pointer"}
                :on-click #(sort-click-fn (.-ctrlKey %))}
-        (condp = @(rf/subscribe [::subs/sort-mode data-root-key model-col])
+        (condp = @(rf/subscribe [::subs/sort-mode entity-type model-col])
           :asc " ▲"
           :desc " ▼"
           [:span {:style {:opacity "0.3"}}   ;; sortable but not participating
@@ -279,8 +280,8 @@
            [column-selector state-atom selector-config column-model])
          [the-table config column-model data-atom state-atom]])))
 
-
 (comment
   [@(rf/subscribe [::subs/sort-mode :ships 4])]
-  [@(rf/subscribe [::subs/entity-ordering :ships])]
+  [@(rf/subscribe [::subs/sort-mode :thrusters 4])]
+  [@(rf/subscribe [::subs/entity-ordering :thrusters])]
   )

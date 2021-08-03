@@ -117,7 +117,9 @@
 (defn ships-list []
   [:div.app
    [ships-filter]
-   (let [config (merge {:column-model table-columns, :data-root-key :ships}
+   (let [config (merge {:column-model table-columns,
+                        :data-root-key :ships,
+                        :entity-type :ships}
                        default-table-config)]
      [rt/reagent-table (rf/subscribe [::subs/filtered-ships table-columns]) config])])
 

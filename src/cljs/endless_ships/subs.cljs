@@ -126,8 +126,9 @@
             (fn [[_ outfit-type]]
               [(rf/subscribe [::outfits])
                (rf/subscribe [::entity-ordering outfit-type])])
-            (fn [[outfits ordering] [_ outfit-type]]
-              (filter (get-in outfits/types [outfit-type :filter]) outfits)))
+            (fn [[outfits ordering] [_ outfit-type column-model]]
+              (let [filtered-outfits (filter (get-in outfits/types [outfit-type :filter]) outfits)]
+                (tables/table-sort-fn filtered-outfits column-model ordering))))
 
 (rf/reg-sub ::game-version
             (fn [db]
@@ -160,8 +161,8 @@
               (get-in db [:settings])))
 
 (rf/reg-sub ::sort-mode
-            (fn [entity-type model-col]
-              [(rf/subscribe [::entity-ordering :ships])])
+            (fn [[_ entity-type model-col]]
+              [(rf/subscribe [::entity-ordering entity-type])])
             (fn [[ordering] [_ entity-type model-col]]
               (-> (filter #(= (first %) model-col) ordering)
                   first

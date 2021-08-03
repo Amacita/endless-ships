@@ -250,10 +250,12 @@
 (defn outfits []
   [:div.app
    (doall (map (fn [[type type-attrs]]
-                 ^{:key type} [:div [:h2 (:header type-attrs)]
-                               [rt/reagent-table
-                                (rf/subscribe [::subs/outfits-of-type type])
-                                (merge {:column-model (into [] (concat default-columns (type columns))),
-                                        :data-root-key :outfits}
-                                       default-table-config)]])
+                 (let [column-model (into [] (concat default-columns (type columns)))]
+                   ^{:key type} [:div [:h2 (:header type-attrs)]
+                                 [rt/reagent-table
+                                  (rf/subscribe [::subs/outfits-of-type type column-model])
+                                  (merge {:column-model column-model,
+                                          :data-root-key :outfits,
+                                          :entity-type type}
+                                         default-table-config)]]))
                utils/types))])

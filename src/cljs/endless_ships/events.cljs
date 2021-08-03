@@ -10,7 +10,7 @@
   (reduce (fn [settings [name {:keys [initial-ordering]}]]
             (assoc settings
                    name
-                   {:ordering initial-ordering}))
+                   {:ordering [[0 :asc]]}))
           {}
           outfits/types))
 
@@ -132,12 +132,6 @@
                                         (if found
                                           result
                                           (conj result [model-col :asc]))))))))))
-
-(rf/reg-event-db ::sort-data
-                 (fn [db [_ data-root-key sort-fn column-model sorting]]
-                     ;(update-in db [:debug] (fn [old] (with-out-str (pprint column-model))))
-                     ;(update-in db [:debug] (fn [old] (with-out-str (print (str data-root-key " " sorting)))))
-                     (update-in db [data-root-key] #(sort-fn % column-model sorting))))
 
 (rf/reg-event-db ::toggle-ship-filters-visibility
                  (fn [db]
