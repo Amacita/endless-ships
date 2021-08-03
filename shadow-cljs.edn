@@ -5,6 +5,8 @@
                 [bidi "2.1.6"]
                 [kibu/pushy "0.3.8"]
                 [cider/cider-nrepl "0.21.0"]]
+ :nrepl {:port 3333}
+ :dev-http {8080 "public"}
  :builds {:main {:target :browser
                  :modules {:main {:init-fn endless-ships.core/init}}
                  :devtools {:http-root "public"
