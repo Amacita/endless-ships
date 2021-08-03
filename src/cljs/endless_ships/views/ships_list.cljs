@@ -117,7 +117,15 @@
 (defn ships-list []
   [:div.app
    [ships-filter]
-   ; [:pre (with-out-str (pprint @(rf/subscribe [::subs/filtered-ships])))]])
    (let [config (merge {:column-model table-columns, :data-root-key :ships}
                        default-table-config)]
-     [rt/reagent-table (rf/subscribe [::subs/filtered-ships]) config])])
+     [rt/reagent-table (rf/subscribe [::subs/filtered-ships table-columns]) config])])
+
+(comment
+  (print (.-stack *e))
+  (print *e)
+  (take 3 @(rf/subscribe [::subs/filtered-ships table-columns]))
+  [@(rf/subscribe [::subs/debug [:settings]])]
+  [@(rf/subscribe [::subs/debug [:settings :ships :ordering]])]
+  (rf/dispatch [::events/toggle-ordering :ships 4 false])
+  )

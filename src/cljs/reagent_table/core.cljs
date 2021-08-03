@@ -58,37 +58,6 @@
 (def default-config {:table
                       {:style {:width nil}}})
 
-(defn- update-sort-columns!
-  "Maintain multiple sort columns each with individual directions. The
-  column numbers are in model coordinates.
-
-  A column is initially set to ascending order and toggled thereafter.
-  If a column is not present in list it is appended or becomes the only
-  element when 'append' is false."
-  [model-col state-atom append]
-  (let [sorting (:sorting @state-atom)]
-    (swap! state-atom
-           assoc :sorting
-           (if-not append
-             [[model-col (if (= (first sorting) [model-col :asc]) :desc :asc)]]
-             (loop [sorting sorting
-                    found false
-                    result []]
-               (let [column (first sorting)
-                     this-col (first column)
-                     this-dir (second column)]
-                 (if column
-                   (if (= model-col this-col)
-                     (recur (rest sorting)
-                            true
-                            (conj result [model-col (if (= this-dir :asc) :desc :asc)]))
-                     (recur (rest sorting)
-                            found
-                            (conj result column)))
-                   (if found
-                     result
-                     (conj result [model-col :asc])))))))))
-
 (defn- is-sorting
   "Return the sort direction for the specified column number, nil
   if the column is not currently sorted, or :none if the column is not

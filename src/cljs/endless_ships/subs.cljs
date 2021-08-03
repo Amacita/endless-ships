@@ -56,15 +56,16 @@
                (rf/subscribe [::ships-race-filter])
                (rf/subscribe [::ships-category-filter])
                (rf/subscribe [::ships-license-filter])])
-            (fn [[all-ships ordering race-filter category-filter license-filter]]
-              (->> all-ships
-                   (filter (fn [ship]
-                             (and (get race-filter (:race ship))
-                                  (get category-filter (:category ship))
-                                  (not-any? (fn [license]
-                                              (not (get license-filter license)))
-                                            (get ship :licenses []))))))))
-                   ;#(tables/table-sort-fn % :nothingtoseehere ordering))))
+            (fn [[all-ships ordering race-filter category-filter license-filter] [_ column-model]]
+              (let [filtered-ships
+                    (->> all-ships
+                         (filter (fn [ship]
+                                   (and (get race-filter (:race ship))
+                                        (get category-filter (:category ship))
+                                        (not-any? (fn [license]
+                                                    (not (get license-filter license)))
+                                                  (get ship :licenses []))))))]
+                (tables/table-sort-fn filtered-ships column-model ordering))))
 
 ; Linear search
 (rf/reg-sub ::ship
@@ -151,8 +152,8 @@
               (get (:plugins db) plugin-key)))
 
 (rf/reg-sub ::debug
-            (fn [db]
-              (get-in db [:debug])))
+            (fn [db [_ path]]
+              (get-in db path)))
 
 (rf/reg-sub ::settings
             (fn [db]

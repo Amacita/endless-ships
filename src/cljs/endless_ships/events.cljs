@@ -27,8 +27,7 @@
                          :gw-version {}
                          :licenses {}
                          :plugins {}
-                         :settings (merge {:ships {:ordering {:column-name "Name"
-                                                              :order :asc}
+                         :settings (merge {:ships {:ordering [[0 :asc]]
                                                    :filters-collapsed? true
                                                    :race-filter {}
                                                    :category-filter {}
@@ -103,17 +102,36 @@
                  (fn [db [_ route]]
                    (assoc db :route route)))
 
+;; Maintains multiple sort columns each with individual directions. The
+;; column numbers are in model coordinates.
+;;
+;; A column is initially set to ascending order and toggled thereafter.
+;; If a column is not present in list it is appended or becomes the only
+;; element when 'append' is false.
 (rf/reg-event-db ::toggle-ordering
-                 (fn [db [_ entity-type column append]]
+                 (fn [db [_ entity-type model-col append]]
                    (update-in db
                               [:settings entity-type :ordering]
-                              (fn [{:keys [column-name order]}]
-                                (cond
-                                  (not= column-name column) {:column-name column
-                                                             :order :desc}
-                                  (= order :asc) {:column-name nil}
-                                  :else {:column-name column
-                                         :order :asc})))))
+                              (fn [sorting]
+                                (if-not append
+                                  [[model-col (if (= (first sorting) [model-col :asc]) :desc :asc)]]
+                                  (loop [sorting sorting
+                                         found false
+                                         result []]
+                                    (let [column (first sorting)
+                                          this-col (first column)
+                                          this-dir (second column)]
+                                      (if column
+                                        (if (= model-col this-col)
+                                          (recur (rest sorting)
+                                                 true
+                                                 (conj result [model-col (if (= this-dir :asc) :desc :asc)]))
+                                          (recur (rest sorting)
+                                                 found
+                                                 (conj result column)))
+                                        (if found
+                                          result
+                                          (conj result [model-col :asc]))))))))))
 
 (rf/reg-event-db ::sort-data
                  (fn [db [_ data-root-key sort-fn column-model sorting]]
