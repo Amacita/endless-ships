@@ -21,11 +21,18 @@
                             :on-change #(rf/dispatch [toggling-event item])}]
                    (str/capitalize (name item))]]))
 
-(defn filter-group-checked? [filter-sub]
-  (let [filters (vals @(rf/subscribe filter-sub))]
-    (cond (every? true? filters) true
-          (some true? filters) false
-          :else false)))
+(defn- filter-group-header
+  [name subscription entity-type filter-type]
+  [:div.checkbox
+   [:label.checkbox-header
+    [:input
+     {:type "checkbox"
+      :checked (let [filters (vals @(rf/subscribe [subscription]))]
+                 (cond (every? true? filters) true
+                       (some true? filters) false
+                       :else false))
+      :on-change #(rf/dispatch [::events/toggle-filter-group entity-type filter-type])}]
+    name]])
 
 (defn ships-filter []
   (let [height (ra/atom nil)]
@@ -42,18 +49,13 @@
            {:ref #(when % (reset! height (.-clientHeight %)))}
            [:div.row
             [:div.col-lg-2.col-md-3
-             [:div.checkbox
-              [:label.checkbox-header
-               [:input#race-filter-group {:type "checkbox"
-                                          :checked (filter-group-checked? [::subs/ships-race-filter])
-                                          :on-change #(rf/dispatch [::events/toggle-ships-race-group-filter])}]
-               "Race"]]
+             (filter-group-header "Race" ::subs/ships-race-filter :ships :race-filter)
              (checkbox-group race-filter ::events/toggle-ships-race-filter)]
             [:div.col-lg-2.col-md-3
-             [:strong "Category"]
+             (filter-group-header "Category" ::subs/ships-category-filter :ships :category-filter)
              (checkbox-group category-filter ::events/toggle-ships-category-filter)]
             [:div.col-lg-2.col-md-3
-             [:strong "License"]
+             (filter-group-header "License" ::subs/ships-license-filter :ships :license-filter)
              (checkbox-group license-filter ::events/toggle-ships-license-filter)]]]]
          [:button.btn.btn-default
           {:type "button"

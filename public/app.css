@@ -26,6 +26,12 @@ img.ship-sprite {
     padding: 10px 15px;
 }
 
+.checkbox label.checkbox-header {
+    font-weight: bold;
+    text-decoration: underline;
+    margin-bottom: .5em;
+}
+
 /* reagent-table */
 
 table.reagent-table thead th {
