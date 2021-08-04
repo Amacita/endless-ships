@@ -21,6 +21,12 @@
                             :on-change #(rf/dispatch [toggling-event item])}]
                    (str/capitalize (name item))]]))
 
+(defn filter-group-checked? [filter-sub]
+  (let [filters (vals @(rf/subscribe filter-sub))]
+    (cond (every? true? filters) true
+          (some true? filters) false
+          :else false)))
+
 (defn ships-filter []
   (let [height (ra/atom nil)]
     (fn []
@@ -36,7 +42,12 @@
            {:ref #(when % (reset! height (.-clientHeight %)))}
            [:div.row
             [:div.col-lg-2.col-md-3
-             [:strong "Race"]
+             [:div.checkbox
+              [:label.checkbox-header
+               [:input#race-filter-group {:type "checkbox"
+                                          :checked (filter-group-checked? [::subs/ships-race-filter])
+                                          :on-change #(rf/dispatch [::events/toggle-ships-race-group-filter])}]
+               "Race"]]
              (checkbox-group race-filter ::events/toggle-ships-race-filter)]
             [:div.col-lg-2.col-md-3
              [:strong "Category"]

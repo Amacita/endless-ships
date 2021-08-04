@@ -145,6 +145,15 @@
                               [:settings :ships :race-filter race]
                               not)))
 
+(rf/reg-event-db ::toggle-ships-race-group-filter
+  (fn [db [_]]
+    (let [filters (vals (get-in db [:settings :ships :race-filter]))
+          new-val (cond (every? true? filters) false
+                        (some true? filters) false
+                        :else true)]
+      (update-in db [:settings :ships :race-filter]
+                 #(into {} (map (fn [[k,v]] [k new-val]) %))))))
+
 (rf/reg-event-db ::toggle-ships-category-filter
                  (fn [db [_ category]]
                    (update-in db
