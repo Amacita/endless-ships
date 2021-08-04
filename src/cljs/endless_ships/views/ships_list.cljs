@@ -12,27 +12,26 @@
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
 
-(defn checkbox-group [filter toggling-event]
-  (for [[item checked?] filter]
-    ^{:key item} [:div.checkbox
-                  [:label
-                   [:input {:type "checkbox"
-                            :checked checked?
-                            :on-change #(rf/dispatch [toggling-event item])}]
-                   (str/capitalize (name item))]]))
-
-(defn- filter-group-header
-  [name subscription entity-type filter-type]
-  [:div.checkbox
-   [:label.checkbox-header
-    [:input
-     {:type "checkbox"
-      :checked (let [filters (vals @(rf/subscribe [subscription]))]
-                 (cond (every? true? filters) true
-                       (some true? filters) false
-                       :else false))
-      :on-change #(rf/dispatch [::events/toggle-filter-group entity-type filter-type])}]
-    name]])
+(defn- filter-group
+  [header subscription entity-type filter-type]
+  [:div.col-lg-2.col-md-3
+   [:div.checkbox
+    [:label.checkbox-header
+     [:input
+      {:type "checkbox"
+       :checked (let [filters (vals @(rf/subscribe [subscription]))]
+                  (cond (every? true? filters) true
+                        (some true? filters) false
+                        :else false))
+       :on-change #(rf/dispatch [::events/toggle-filter-group entity-type filter-type])}]
+     header]]
+   (for [[item checked?] @(rf/subscribe [subscription])]
+     ^{:key item} [:div.checkbox
+                   [:label
+                    [:input {:type "checkbox"
+                             :checked checked?
+                             :on-change #(rf/dispatch [::events/toggle-filter entity-type filter-type item])}]
+                    (str/capitalize (name item))]])])
 
 (defn ships-filter []
   (let [height (ra/atom nil)]
@@ -48,15 +47,10 @@
           [:div.container-fluid
            {:ref #(when % (reset! height (.-clientHeight %)))}
            [:div.row
-            [:div.col-lg-2.col-md-3
-             (filter-group-header "Race" ::subs/ships-race-filter :ships :race-filter)
-             (checkbox-group race-filter ::events/toggle-ships-race-filter)]
-            [:div.col-lg-2.col-md-3
-             (filter-group-header "Category" ::subs/ships-category-filter :ships :category-filter)
-             (checkbox-group category-filter ::events/toggle-ships-category-filter)]
-            [:div.col-lg-2.col-md-3
-             (filter-group-header "License" ::subs/ships-license-filter :ships :license-filter)
-             (checkbox-group license-filter ::events/toggle-ships-license-filter)]]]]
+             (filter-group "Race" ::subs/ships-race-filter :ships :race-filter)
+             (filter-group "Category" ::subs/ships-category-filter :ships :category-filter)
+             (filter-group "License" ::subs/ships-license-filter :ships :license-filter)
+             ]]]
          [:button.btn.btn-default
           {:type "button"
            :on-click #(rf/dispatch [::events/toggle-ship-filters-visibility])}

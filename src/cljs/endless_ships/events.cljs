@@ -139,29 +139,17 @@
                               [:settings :ships :filters-collapsed?]
                               not)))
 
-(rf/reg-event-db ::toggle-ships-race-filter
-                 (fn [db [_ race]]
+(rf/reg-event-db ::toggle-filter
+                 (fn [db [_ entity-type filter-type item]]
                    (update-in db
-                              [:settings :ships :race-filter race]
+                              [:settings entity-type filter-type item]
                               not)))
 
 (rf/reg-event-db ::toggle-filter-group
-  (fn [db [_ entity-type filter-type]]
-    (let [path [:settings entity-type filter-type]
-          filters (vals (get-in db path))
-          new-val (cond (every? true? filters) false
-                        (some true? filters) true
-                        :else true)]
-      (update-in db path #(into {} (map (fn [[k,v]] [k new-val]) %))))))
-
-(rf/reg-event-db ::toggle-ships-category-filter
-                 (fn [db [_ category]]
-                   (update-in db
-                              [:settings :ships :category-filter category]
-                              not)))
-
-(rf/reg-event-db ::toggle-ships-license-filter
-                 (fn [db [_ license]]
-                   (update-in db
-                              [:settings :ships :license-filter license]
-                              not)))
+                 (fn [db [_ entity-type filter-type]]
+                   (let [path [:settings entity-type filter-type]
+                         filters (vals (get-in db path))
+                         new-val (cond (every? true? filters) false
+                                       (some true? filters) true
+                                       :else true)]
+                     (update-in db path #(into (sorted-map) (map (fn [[k,v]] [k new-val]) %))))))
