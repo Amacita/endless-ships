@@ -43,5 +43,8 @@ Here are some things known to break the program.
    - Missing a space between an attribute and its value, e.g. `"shields"500`
    - Trying to place a comment with `//` instead of `#`
    - System names or other identifiers containing `#`
+   - Extra indentation levels
+   - Separating things with tabs instead of spaces, e.g. `mass <tab> 500`
+   - Indenting with spaces instead of tabs
 
 If you want the parser to ignore certain non-conformant files, just add them to the ignore list in `src/plugins.clj`.
