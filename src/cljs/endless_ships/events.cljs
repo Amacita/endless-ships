@@ -78,6 +78,16 @@
                               :gw-version (:gw-version data)
                               :licenses (:licenses data)
                               :plugins (:plugins data))
+                       (update-in [:settings :outfits]
+                                  merge
+                                  {:race-filter (->> (:outfits data)
+                                                     (map :race)
+                                                     initial-filter)
+                                   :license-filter (->> (:outfits data)
+                                                        (map :licenses)
+                                                        (apply concat)
+                                                        (keep identity)
+                                                        initial-filter)})
                        (update-in [:settings :ships]
                                   merge
                                   {:race-filter (->> (:ships data)

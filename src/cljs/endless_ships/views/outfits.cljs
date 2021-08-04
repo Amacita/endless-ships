@@ -6,6 +6,7 @@
             [endless-ships.subs :as subs]
             [endless-ships.routes :as routes]
             [endless-ships.utils.tables :refer [default-table-config]]
+            [endless-ships.utils.filters :as filters]
             [clojure.pprint :refer [pprint]]))
 
 (def default-columns
@@ -249,6 +250,7 @@
 
 (defn outfits []
   [:div.app
+   [filters/ui]
    (doall (map (fn [[type type-attrs]]
                  (let [column-model (into [] (concat default-columns (type columns)))]
                    ^{:key type} [:div [:h2 (:header type-attrs)]

@@ -25,6 +25,10 @@
             (fn [db]
               (get-in db [:settings :ships :filters-collapsed?])))
 
+(rf/reg-sub ::filter
+            (fn [db [_ entity-type filter-type]]
+              (get-in db [:settings entity-type filter-type])))
+
 (rf/reg-sub ::ships-race-filter
             (fn [db]
               (get-in db [:settings :ships :race-filter])))
@@ -125,9 +129,17 @@
 (rf/reg-sub ::outfits-of-type
             (fn [[_ outfit-type]]
               [(rf/subscribe [::outfits])
-               (rf/subscribe [::entity-ordering outfit-type])])
-            (fn [[outfits ordering] [_ outfit-type column-model]]
-              (let [filtered-outfits (filter (get-in outfits/types [outfit-type :filter]) outfits)]
+               (rf/subscribe [::entity-ordering outfit-type])
+               (rf/subscribe [::filter :outfits :race-filter])
+               (rf/subscribe [::filter :outfits :license-filter])])
+            (fn [[outfits ordering race-filter license-filter] [_ outfit-type column-model]]
+              (let [filtered-outfits (->> outfits
+                                          (filter (get-in outfits/types [outfit-type :filter])) ; filter function defined in data
+                                          (filter (fn [outfit]
+                                                    (and (get race-filter (:race outfit))
+                                                         (not-any? (fn [license]
+                                                                     (not (get license-filter license)))
+                                                                   (get outfit :licenses []))))))]
                 (tables/table-sort-fn filtered-outfits column-model ordering))))
 
 (rf/reg-sub ::game-version
