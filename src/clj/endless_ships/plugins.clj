@@ -10,6 +10,7 @@
     :repository "https://github.com/endless-sky/endless-sky/"
     :base-image-url "https://raw.githubusercontent.com/endless-sky/endless-sky/master/images/"
     :ignore-files #{"data/deprecated outfits.txt"
+                    "data/interfaces.txt"
                     "data/sheragi/archaeology missions.txt"
                     "data/remnant/remnant missions.txt"
                     "data/korath/nanobots.txt"

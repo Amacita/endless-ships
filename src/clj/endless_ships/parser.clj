@@ -45,7 +45,7 @@
 (defn- preprocess
   "Removes comments, blank lines, and other unwanted text."
   [text-str]
-  (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet) .+\n(\t.*\n)+" "")
+  (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet) .+\n((\t.*)?(\n|\z))+" "")
         text-lines        (str/split-lines no-missions)
         lines-no-comments (map #(str/replace % #"#.*" "") text-lines)
         lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
@@ -53,7 +53,7 @@
         map-cleaned       (ignore-unwanted-map-lines lines-no-blanks)
         text-no-blanks    (str/join \newline map-cleaned)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
-    end-with-nl))
+  (if (= end-with-nl "\n") "" end-with-nl)))
 
 (defn- transform-block [[_ name & args] & child-blocks]
   (let [processed-children (reduce (fn [children [child-name & child-contents]]
@@ -81,13 +81,20 @@
 (defn parse [file]
   (let [parser (insta/parser (resource "parser.bnf"))
         filename (file->relative-path file)]
-    (print (str "Parsing " filename "... "))
+    (println (str "Parsing " filename "... "))
     (time
-       (let [text              (-> file slurp preprocess)
-             parsed            (parser text :optimize :memory)
-             transformed       (insta/transform transform-options parsed)
-             labelled-objects  (map #(assoc-in % [2 "file"] filename) transformed)]
-         labelled-objects))))
+      (let [text (-> file slurp preprocess)]
+        (if (= text "")
+          nil
+          (let [parse-result (parser text :optimize :memory)]
+            (if (insta/failure? parse-result)
+              (throw (ex-info (format "Parse error in '%s'" filename)
+                              {:failure (insta/get-failure parse-result)
+                               :file filename
+                               :text text}))
+              (let [transformed (insta/transform transform-options parse-result)
+                    labelled-objects (map #(assoc-in % [2 "file"] filename) transformed)]
+                labelled-objects))))))))
 
 (defn parse-data-files [files]
    (doall
@@ -102,6 +109,14 @@
           m))
 
 (comment
+  (try
+    (endless-ships.core/edn (concat (endless-ships.core/find-data-files "game/data")
+                                    (endless-ships.core/find-data-files "gw/data")))
+    (catch Exception e
+      (println (format "Error while parsing '%s'" (:file (ex-data e))))
+      (println (str "'" (:text (ex-data e)) "'"))
+      (println (:failure (ex-data e)))))
+
   (def wfiles (endless-ships.core/find-data-files "gw/data/Dels"))
   (def wfile (resource "gw/data/Dels/Dels ships.txt"))
   (def wdata (parse-data-files wfiles))
