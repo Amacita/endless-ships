@@ -46,5 +46,6 @@ Here are some things known to break the program.
    - Extra indentation levels
    - Separating things with tabs instead of spaces, e.g. `mass <tab> 500`
    - Indenting with spaces instead of tabs
+   - Mission files missing an end \` in a conversation node
 
 If you want the parser to ignore certain non-conformant files, just add them to the ignore list in `src/plugins.clj`.
