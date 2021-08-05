@@ -1,7 +1,7 @@
 (ns endless-ships.core
   (:require [clojure.java.io :refer [file resource]]
             [clojure.java.shell :refer [sh]]
-            [clojure.set :refer [rename-keys]]
+            [clojure.set :refer [rename-keys union]]
             [clojure.string :as str]
             [camel-snake-kebab.core :as csk]
             [endless-ships.outfits :refer [outfits-data licenses->race]]
@@ -11,14 +11,13 @@
             [endless-ships.parser :refer [parse-data-files file->relative-path]]))
 
 (defn- remove-unwanted-files [files]
-  "Omits files with incomplete ships and outfits that would break the output."
-  (let [unwanted-files #{"game/data/deprecated outfits.txt"
-                         "game/data/sheragi/archaeology missions.txt"
-                         "game/data/remnant/remnant missions.txt"
-                         "game/data/korath/nanobots.txt"
-                         "game/data/human/transport missions.txt"
-                         "game/data/persons.txt"
-                         "gw/data/Ultaka/Ultaka mothership weapon.txt"}]
+  "Filters out the files that are configured to be ingored."
+  (let [unwanted-files (into #{} (apply union (map (fn [plugin]
+                                                     (map (fn [file] (str (:resource-dir plugin)
+                                                                          "/"
+                                                                          file))
+                                                          (:ignore-files plugin)))
+                                                   (vals plugins))))]
     (->> (map file->relative-path files)
          (remove #(contains? unwanted-files %))
          (map resource)
