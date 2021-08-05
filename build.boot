@@ -1,6 +1,6 @@
 (set-env! :source-paths #{"src/clj"}
           :resource-paths #{"resources"}
-          :dependencies '[[org.clojure/clojure "1.8.0"]
+          :dependencies '[[org.clojure/clojure "1.10.3"]
                           [instaparse "1.4.5"]
                           [camel-snake-kebab "0.4.0"]
                           [buddy/buddy-core "1.6.0"]])
