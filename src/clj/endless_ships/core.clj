@@ -46,22 +46,6 @@
            (when (nil? commits-since-tag)
              {:tag tag}))))
 
-(defn edn [files]
-  (let [data (parse-data-files files)
-        complete-outfits (outfits-data data)
-        complete-ships (ships-data data complete-outfits)
-        complete-modifications (modifications-data data complete-outfits)
-        complete-outfitters (outfitters data)
-        edn-data {:ships complete-ships
-                  :ship-modifications complete-modifications
-                  :outfits complete-outfits
-                  :outfitters complete-outfitters
-                  :licenses (licenses->race complete-outfits complete-ships)
-                  :plugins plugins
-                  :version (repo-version "./resources/game")
-                  :gw-version (repo-version "./resources/gw")}]
-    (with-out-str (clojure.pprint/pprint edn-data))))
-
 (defn government-colors [files]
   "Gets government colors in CSS format. The CSS for government labels is maintained by hand."
   (->> (parse-data-files files)
@@ -81,12 +65,26 @@
 
 (defn generate-data []
   (try
-    (let [data (edn (concat (find-data-files "game/data")
-                            (find-data-files "gw/data")))]
-      (println "Saving data.edn...")
-      (spit "public/data.edn" data))
+    (let [files (concat (find-data-files "game/data")
+                        (find-data-files "gw/data"))
+          data (parse-data-files files)
+          complete-outfits (outfits-data data)
+          complete-ships (ships-data data complete-outfits)
+          complete-modifications (modifications-data data complete-outfits)
+          complete-outfitters (outfitters data)
+          edn-data {:ships complete-ships
+                    :ship-modifications complete-modifications
+                    :outfits complete-outfits
+                    :outfitters complete-outfitters
+                    :licenses (licenses->race complete-outfits complete-ships)
+                    :plugins plugins
+                    :version (repo-version "./resources/game")
+                    :gw-version (repo-version "./resources/gw")}]
+      (println "Formatting data...")
+      (let [edn-pretty-data (time (with-out-str (clojure.pprint/pprint edn-data)))]
+        (println "Saving data.edn...")
+        (time (spit "public/data.edn" data))))
     (catch Exception e
-      (println e)
       (println (format "Error while parsing '%s'" (:file (ex-data e))))
       (println "Line numbers may be inaccurate due to preprocessing.")
       (println (:failure (ex-data e))))))
