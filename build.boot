@@ -3,12 +3,10 @@
           :dependencies '[[org.clojure/clojure "1.10.3"]
                           [instaparse "1.4.5"]
                           [camel-snake-kebab "0.4.0"]
+                          [fipp "0.6.24"]
                           [buddy/buddy-core "1.6.0"]])
 
-(require '[buddy.core.codecs :refer [bytes->hex]]
-         '[buddy.core.hash :refer [sha1]]
-         '[clojure.string :as str]
-         '[endless-ships.core :as core])
+(require '[endless-ships.core :as core])
 
 (deftask dev
   "Starts an nREPL server."
@@ -17,42 +15,11 @@
    (wait)
    (repl :server true)))
 
-(defn- filename-with-hash [filename content]
-  (let [sha1-hash (-> content sha1 bytes->hex (subs 0 10))
-        [name extension] (str/split filename #"\.")]
-    (str/join "." [name sha1-hash extension])))
-
-(deftask build-test
-  "Builds a development version of the website without reparsing everything."
-  []
-  (dosh "rm" "-rf" "./build")
-  (dosh "yarn" "install")
-  (dosh "shadow-cljs" "--debug" "compile" "main")
-  (dosh "mkdir" "-p" "./build/js")
-  (dosh "cp" "./public/data.edn" "./public/app.css" "./public/ga.json" "./public/index.html" "./build")
-  (dosh "cp" "./public/js/main.js" "./build/js"))
-
 (deftask build
-  "Build the site into build/ directory."
+  "Builds dependencies for the web application."
   []
-  (let [edn (core/edn (concat (core/find-data-files "game/data")
-                              (core/find-data-files "gw/data")))]
-    (dosh "rm" "-rf" "./build")
-    (dosh "yarn" "install")
-    (dosh "shadow-cljs" "release" "main")
-    (dosh "mkdir" "-p" "./build/js")
-    (let [edn-filename (filename-with-hash "data.edn" edn)
-          js (-> (slurp "./public/js/main.js")
-                 (str/replace "data.edn" edn-filename))
-          js-filename (filename-with-hash "main.js" js)
-          html (-> (slurp "./public/index.html")
-                   (str/replace "main.js" js-filename))]
-      (spit (str "./build/" edn-filename) edn)
-      (spit (str "./build/js/" js-filename) js)
-      (spit "./build/index.html" html)
-      (dosh "cp" "./public/app.css" "./public/ga.json" "./build")
-      (if (.exists (clojure.java.io/as-file "ga.json"))
-        (dosh "cp" "./ga.json" "./build")))))
+  (dosh "yarn" "install")
+  (dosh "shadow-cljs" "release" "main"))
 
 (deftask generate-data
   "Generate the data.edn file in public/ for local development."

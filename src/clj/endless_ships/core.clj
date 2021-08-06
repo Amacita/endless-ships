@@ -3,6 +3,7 @@
             [clojure.java.shell :refer [sh]]
             [clojure.set :refer [rename-keys union]]
             [clojure.string :as str]
+            [fipp.edn :refer [pprint] :rename {pprint fipp}]
             [camel-snake-kebab.core :as csk]
             [endless-ships.outfits :refer [outfits-data licenses->race]]
             [endless-ships.outfitters :refer [outfitters]]
@@ -81,9 +82,9 @@
                     :version (repo-version "./resources/game")
                     :gw-version (repo-version "./resources/gw")}]
       (println "Formatting data...")
-      (let [edn-pretty-data (time (with-out-str (clojure.pprint/pprint edn-data)))]
+      (let [edn-pretty-data (time (with-out-str (fipp edn-data)))]
         (println "Saving data.edn...")
-        (time (spit "public/data.edn" data))))
+        (time (spit "public/data.edn" edn-pretty-data))))
     (catch Exception e
       (println (format "Error while parsing '%s'" (:file (ex-data e))))
       (println "Line numbers may be inaccurate due to preprocessing.")
