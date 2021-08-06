@@ -1,7 +1,7 @@
 (ns endless-ships.ships
   (:require [clojure.set :refer [rename-keys]]
-            [endless-ships.parser :refer [->map file->race]]
-            [endless-ships.plugins :refer [file->plugin image-source]]
+            [endless-ships.parser :refer [->map]]
+            [endless-ships.plugins :refer [file->plugin file->race image-source]]
             [endless-ships.outfits :refer [assoc-outfits-cost]]))
 
 (defn- add-key-if [cond key value]

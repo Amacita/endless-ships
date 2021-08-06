@@ -34,6 +34,20 @@
   (let [root (first (str/split file #"/"))]
     (first (filter #(= (:resource-dir %) root) (vals plugins)))))
 
+(defn file->race [filename]
+  "Usually you can tell which race a file describes based on the file path."
+  (let [overrides (into {} (apply concat
+                                  (map (fn [plugin]
+                                         (map (fn [[file label]] [(str (:resource-dir plugin)
+                                                                       "/"
+                                                                       file)
+                                                                  label])
+                                              (:race-overrides plugin)))
+                                       (vals plugins))))]
+    (get overrides
+         filename
+         (-> filename file .getParentFile .getName .toLowerCase keyword))))
+
 (defn image-source [item]
   "Given a ship or outfit, tells you whether its image is in the plugin or the base game."
   (let [plugin (get plugins (:plugin item))
@@ -45,7 +59,7 @@
       (resource image-file-alt) :vanilla
       :else [:not-found image image-file image-file-alt])))
 
-(defn file-ignore-list []
+(defn ignored-files []
   "Returns a list of files that are configured to be ingored."
   (into #{} (apply union (map (fn [plugin]
                                 (map (fn [file] (str (:resource-dir plugin)

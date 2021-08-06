@@ -1,6 +1,6 @@
 (ns endless-ships.outfits
-  (:require [endless-ships.parser :refer [->map file->race]]
-            [endless-ships.plugins :refer [file->plugin image-source]]
+  (:require [endless-ships.parser :refer [->map]]
+            [endless-ships.plugins :refer [file->plugin file->race image-source]]
             [camel-snake-kebab.core :as csk]
             [clojure.string :as str]))
 
@@ -178,9 +178,6 @@
               (-> outfit
                   (assoc-in [:meta :image :file] (outfit->image-file outfit))
                   (#(assoc-in % [:meta :image :origin] (image-source %))))))))
-
-(defn outfits-data [data]
-  (outfits data))
 
 (defn assoc-outfits-cost [ship outfits-data]
   (let [outfits (:outfits ship)]

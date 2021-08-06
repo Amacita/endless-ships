@@ -4,7 +4,7 @@
             [clojure.string :as str]
             [fipp.edn :refer [pprint] :rename {pprint fipp}]
             [camel-snake-kebab.core :as csk]
-            [endless-ships.outfits :refer [outfits-data licenses->race]]
+            [endless-ships.outfits :refer [outfits licenses->race]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
             [endless-ships.plugins :as plugins]
@@ -12,7 +12,7 @@
 
 (defn find-data-files [search-dirs]
   "Finds data files in resources/<dir> for each <dir> in search-dirs."
-  (let [unwanted-files (plugins/file-ignore-list)]
+  (let [unwanted-files (plugins/ignored-files)]
     (->> (apply concat (map #(-> % resource file file-seq) search-dirs))
          (filter #(-> % .getName (.endsWith ".txt")))
          (map (fn [data-file] (let [resource-root (-> (resource "game") file .getParent)
@@ -22,6 +22,7 @@
          (remove #(contains? unwanted-files %)))))
 
 (defn repo-version [dir]
+  "Tells you the version of a git repository."
   (let [git-cmd (fn [& args]
                   (->> (concat ["git"] args [:dir dir])
                        (apply sh)
@@ -56,9 +57,10 @@
               (str ".label-" (csk/->kebab-case-symbol government) " {\n    background-color: " color "\n}\n\n")))))
 
 (defn generate-data []
+  "Attempts to parse the data files and save the resulting info."
   (try
     (let [data (parse-data-files (find-data-files ["game/data" "gw/data"]))
-          complete-outfits (outfits-data data)
+          complete-outfits (outfits data)
           complete-ships (ships-data data complete-outfits)
           complete-modifications (modifications-data data complete-outfits)
           complete-outfitters (outfitters data)
