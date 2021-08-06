@@ -103,21 +103,5 @@
 (defn modifications-data [data outfit-data]
   (->> (modifications data)
        (map #(-> %
-;                 (dissoc :file)
                  (rename-keys {:cost :empty-hull-cost})))
        (map #(assoc-outfits-cost % outfit-data))))
-
-
-(comment
-  (use 'endless-ships.ships :reload-all)
-  (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/drak/indigenous.txt")]))
-  (def wdata (endless-ships.parser/parse-data-files [(clojure.java.io/resource "game/data/human/ships.txt")]))
-  (def wships (ships-data wdata {}))
-  (clojure.pprint/pprint (first wships))
-  (clojure.pprint/pprint wships)
-  (clojure.pprint/pprint (first wdata))
-
-  (clojure.pprint/pprint wdata)
-  (file->race (clojure.java.io/resource "gw/data/Dels/Dels ships.txt"))
-  (clojure.pprint/pprint (ships-data wdata []))
-    )

@@ -5,8 +5,6 @@
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
-(def resource-root (-> (resource "game") file .getParent))
-
 (defn file->race [path]
   (let [file->race-overrides
         { "game/data/human/marauders.txt" :pirate
@@ -14,11 +12,6 @@
     (get file->race-overrides
          path
          (-> path file .getParentFile .getName .toLowerCase keyword))))
-
-(defn file->relative-path [file]
-  (let [absPath (-> file .getPath)
-        relPath (subs absPath (+ 1 (count resource-root)))]
-    relPath))
 
 (defn- ignore-unwanted-map-lines [lines]
   "Map files are large enough to slow down the parser, so we preprocess them to get rid of unwanted and unnecessary lines."
@@ -78,27 +71,26 @@
    :integer #(Long/parseLong %)
    :float #(Float/parseFloat (str/replace % "," "."))})
 
-(defn parse [file]
-  (let [parser (insta/parser (resource "parser.bnf"))
-        filename (file->relative-path file)]
-    (println (str "Parsing " filename "... "))
-    (time
-      (let [text (-> file slurp preprocess)]
-        (if (= text "")
-          nil
-          (let [parse-result (parser text :optimize :memory)]
-            (if (insta/failure? parse-result)
-              (throw (ex-info (format "Parse error in '%s'" filename)
-                              {:failure (insta/get-failure parse-result)
-                               :file filename
-                               :text text}))
-              (let [transformed (insta/transform transform-options parse-result)
-                    labelled-objects (map #(assoc-in % [2 "file"] filename) transformed)]
-                labelled-objects))))))))
-
 (defn parse-data-files [files]
-   (doall
-     (mapcat parse files)))
+  (let [parser (insta/parser (resource "parser.bnf"))]
+    (doall
+      (mapcat
+        (fn [filename]
+          (println (str "Parsing " filename "... "))
+          (time
+            (let [text (-> filename resource file slurp preprocess)]
+              (if (= text "")
+                nil
+                (let [parse-result (parser text :optimize :memory)]
+                  (if (insta/failure? parse-result)
+                    (throw (ex-info (format "Parse error in '%s'" filename)
+                                    {:failure (insta/get-failure parse-result)
+                                     :file filename
+                                     :text text}))
+                    (let [transformed (insta/transform transform-options parse-result)
+                          labelled-objects (map #(assoc-in % [2 "file"] filename) transformed)]
+                      labelled-objects)))))))
+        files))))
 
 (defn ->map [m]
   (reduce (fn [data [attr-name attr-value]]

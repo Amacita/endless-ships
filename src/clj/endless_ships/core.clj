@@ -8,17 +8,18 @@
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
             [endless-ships.plugins :as plugins]
-            [endless-ships.parser :refer [parse-data-files file->relative-path]]))
+            [endless-ships.parser :refer [parse-data-files]]))
 
-(defn find-data-files [dir]
-  "Looks in resources/<dir> for data files."
+(defn find-data-files [search-dirs]
+  "Finds data files in resources/<dir> for each <dir> in search-dirs."
   (let [unwanted-files (plugins/file-ignore-list)]
-    (->> (file-seq (file (resource dir)))
-         (filter #(.endsWith (.getName %) ".txt"))
-         (map file->relative-path)
-         (remove #(contains? unwanted-files %))
-         (map resource)
-         (map file))))
+    (->> (apply concat (map #(-> % resource file file-seq) search-dirs))
+         (filter #(-> % .getName (.endsWith ".txt")))
+         (map (fn [data-file] (let [resource-root (-> (resource "game") file .getParent)
+                                    absolute-path (-> data-file .getPath)
+                                    relative-path (subs absolute-path (+ 1 (count resource-root)))]
+                                relative-path)))
+         (remove #(contains? unwanted-files %)))))
 
 (defn repo-version [dir]
   (let [git-cmd (fn [& args]
@@ -56,9 +57,7 @@
 
 (defn generate-data []
   (try
-    (let [files (concat (find-data-files "game/data")
-                        (find-data-files "gw/data"))
-          data (parse-data-files files)
+    (let [data (parse-data-files (find-data-files ["game/data" "gw/data"]))
           complete-outfits (outfits-data data)
           complete-ships (ships-data data complete-outfits)
           complete-modifications (modifications-data data complete-outfits)
@@ -82,4 +81,5 @@
 
 (comment
   (generate-data)
+  (find-data-files '("game/data" "gw/data"))
 )
