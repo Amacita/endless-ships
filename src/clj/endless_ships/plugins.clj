@@ -15,6 +15,7 @@
                     "data/sheragi/archaeology missions.txt"
                     "data/remnant/remnant missions.txt"
                     "data/korath/nanobots.txt"
+                    "data/harvesting.txt"
                     "data/human/transport missions.txt"
                     "data/persons.txt"}
     :race-overrides {"data/human/marauders.txt" :pirate
@@ -29,6 +30,7 @@
     :race-overrides {}}})
 
 (defn file->plugin [file]
+  "Tells you which plugin a file is from."
   (let [root (first (str/split file #"/"))]
     (first (filter #(= (:resource-dir %) root) (vals plugins)))))
 
