@@ -45,7 +45,7 @@
 (defn- preprocess
   "Removes comments, blank lines, and other unwanted text."
   [text-str]
-  (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet) .+\n((\t.*)?(\n|\z))+" "")
+  (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet|test|test-data) .+\n((\t.*)?(\n|\z))+" "")
         text-lines        (str/split-lines no-missions)
         lines-no-comments (map #(str/replace % #"#.*" "") text-lines)
         lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
@@ -116,34 +116,4 @@
       (println (format "Error while parsing '%s'" (:file (ex-data e))))
       (println (str "'" (:text (ex-data e)) "'"))
       (println (:failure (ex-data e)))))
-
-  ;; object counts by type
-  (->> data
-       (map first)
-       (reduce (fn [counts object]
-                 (update counts object #(inc (or % 0))))
-               {})
-       (sort-by last >))
-
-  ;; ship counts by file
-  (->> data
-       (filter #(and (= (first %) "ship") (= (count (second %)) 1)))
-       (remove #(= (second %) ["Unknown Ship Type"]))
-       (map #(get-in % [2 "file"]))
-       (reduce (fn [counts object]
-                 (update counts object #(inc (or % 0))))
-               {})
-       (sort-by last >))
-
-  ;; outfit counts by file
-  (->> data
-       (filter #(= (first %) "outfit"))
-       (map #(get-in % [2 "file"]))
-       (reduce (fn [counts object]
-                 (update counts object #(inc (or % 0))))
-               {})
-       (sort-by last >))
-
-  ;; parsing errors
-  (->> data
-       (filter #(keyword? (first %)))))
+)
