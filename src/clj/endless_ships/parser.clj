@@ -117,21 +117,6 @@
       (println (str "'" (:text (ex-data e)) "'"))
       (println (:failure (ex-data e)))))
 
-  (def wfiles (endless-ships.core/find-data-files "gw/data/Dels"))
-  (def wfile (resource "gw/data/Dels/Dels ships.txt"))
-  (def wdata (parse-data-files wfiles))
-  (defn foobar [lines]
-    (remove (some-fn #(str/starts-with? % "\tasteroids ")) lines))
-  (-> wfile slurp preprocess print)
-  (endless-ships.core/edn wfiles)
-
-  (def wfile (resource "game/data/wanderer/wanderers middle.txt"))
-
-  (use 'endless-ships.parser :reload-all)
-  (def wtext (-> wfile slurp))
-  (def wtext "foo\nmission 'm'\n\titem blah\n\tmoreitem blah2\nbar")
-  (str/replace wtext #"(?m)^mission .+\n(\t.*\n)+" "")
-
   ;; object counts by type
   (->> data
        (map first)
