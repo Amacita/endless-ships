@@ -107,13 +107,3 @@
                    (get-in attr-value [0 0 0])))
           {}
           m))
-
-(comment
-  (try
-    (endless-ships.core/edn (concat (endless-ships.core/find-data-files "game/data")
-                                    (endless-ships.core/find-data-files "gw/data")))
-    (catch Exception e
-      (println (format "Error while parsing '%s'" (:file (ex-data e))))
-      (println (str "'" (:text (ex-data e)) "'"))
-      (println (:failure (ex-data e)))))
-)

@@ -79,31 +79,18 @@
        (map (fn [[government color]]
               (str ".label-" (csk/->kebab-case-symbol government) " {\n    background-color: " color "\n}\n\n")))))
 
+(defn generate-data []
+  (try
+    (let [data (edn (concat (find-data-files "game/data")
+                            (find-data-files "gw/data")))]
+      (println "Saving data.edn...")
+      (spit "public/data.edn" data))
+    (catch Exception e
+      (println e)
+      (println (format "Error while parsing '%s'" (:file (ex-data e))))
+      (println "Line numbers may be inaccurate due to preprocessing.")
+      (println (:failure (ex-data e))))))
+
 (comment
-  (def wfiles (endless-ships.core/find-data-files "game/data/wanderer/wanderer outfits.txt"))
-  (clojure.pprint/pprint (endless-ships.parser/parse-data-files wfiles))
-  (clojure.pprint/pprint (outfits-data (endless-ships.parser/parse-data-files wfiles)))
-  ;; generate data for frontend development
-  (spit "public/data.edn" edn)
-  ;; get a list of all possible attribute names
-  (->> (ships-data data)
-       (map keys)
-       (apply concat)
-       (into #{}))
-  ;; get ship counts by race
-  (->> (ships-data data)
-       (map :race)
-       (reduce (fn [counts object]
-                 (update counts object #(inc (or % 0))))
-               {})
-       (sort-by last >))
-
-  ;; get government colors in CSS format
-  (spit "public/governments.css"
-        (with-out-str
-          (print
-            (government-colors
-              (concat (find-data-files "game/data/governments.txt")
-                      (find-data-files "gw/data/governments.txt"))))))
-
-  (use 'endless-ships.core :reload-all))
+  (generate-data)
+)

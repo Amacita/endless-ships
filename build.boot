@@ -58,13 +58,8 @@
   "Generate the data.edn file in public/ for local development."
   []
   (try
-    (let [edn (core/edn (concat (endless-ships.core/find-data-files "game/data")
-                                (endless-ships.core/find-data-files "gw/data")))]
-      (println "Saving data.edn...")
-      (spit "public/data.edn" edn))
+    (core/generate-data)
     (catch Exception e
-      (println (format "Error while parsing '%s'" (:file (ex-data e))))
-      (println "Line numbers may be inaccurate due to preprocessing.")
-      (println (:failure (ex-data e))))
+      (println "[build.boot] Encountered exceptions while processing task."))
     (finally
       (println "Quitting..."))))
