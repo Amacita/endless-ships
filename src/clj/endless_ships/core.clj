@@ -1,34 +1,24 @@
 (ns endless-ships.core
   (:require [clojure.java.io :refer [file resource]]
             [clojure.java.shell :refer [sh]]
-            [clojure.set :refer [rename-keys union]]
             [clojure.string :as str]
             [fipp.edn :refer [pprint] :rename {pprint fipp}]
             [camel-snake-kebab.core :as csk]
             [endless-ships.outfits :refer [outfits-data licenses->race]]
             [endless-ships.outfitters :refer [outfitters]]
             [endless-ships.ships :refer [modifications-data ships-data]]
-            [endless-ships.plugins :refer [plugins]]
+            [endless-ships.plugins :as plugins]
             [endless-ships.parser :refer [parse-data-files file->relative-path]]))
 
-(defn- remove-unwanted-files [files]
-  "Filters out the files that are configured to be ingored."
-  (let [unwanted-files (into #{} (apply union (map (fn [plugin]
-                                                     (map (fn [file] (str (:resource-dir plugin)
-                                                                          "/"
-                                                                          file))
-                                                          (:ignore-files plugin)))
-                                                   (vals plugins))))]
-    (->> (map file->relative-path files)
+(defn find-data-files [dir]
+  "Looks in resources/<dir> for data files."
+  (let [unwanted-files (plugins/file-ignore-list)]
+    (->> (file-seq (file (resource dir)))
+         (filter #(.endsWith (.getName %) ".txt"))
+         (map file->relative-path)
          (remove #(contains? unwanted-files %))
          (map resource)
          (map file))))
-
-(defn find-data-files [dir]
-  "Finds all data files starting at ./resources/<dir>"
-  (->> (file-seq (file (resource dir)))
-       (filter #(.endsWith (.getName %) ".txt"))
-       remove-unwanted-files))
 
 (defn repo-version [dir]
   (let [git-cmd (fn [& args]
@@ -78,7 +68,7 @@
                     :outfits complete-outfits
                     :outfitters complete-outfitters
                     :licenses (licenses->race complete-outfits complete-ships)
-                    :plugins plugins
+                    :plugins plugins/plugins
                     :version (repo-version "./resources/game")
                     :gw-version (repo-version "./resources/gw")}]
       (println "Formatting data...")

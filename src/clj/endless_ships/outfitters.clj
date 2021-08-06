@@ -34,18 +34,3 @@
               {:name name
                :outfits (->> outfits keys (remove #{"file"}))
                :planets (planets-with-outfitter name data)}))))
-
-(comment
-  ;; Load data files
-  (def wfiles (endless-ships.core/find-data-files "gw/data/Dels/Dels ships.txt"))
-  (def wdata (endless-ships.parser/parse-data-files wfiles))
-
-  ;; Testing
-  (planets-with-outfitter "Dels Basic" wdata)
-  [(planets-with-outfitter "Dels Basic" wdata)]
-  [(find-object-with-name wdata "Sector Dels")]
-  (clojure.pprint/pprint wdata)
-
-  (use 'endless-ships.outfitters :reload-all)
-  (use 'endless-ships.parser :reload-all)
-  )

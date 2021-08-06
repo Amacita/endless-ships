@@ -1,5 +1,6 @@
 (ns endless-ships.plugins
   (:require [clojure.string :as str]
+            [clojure.set :refer [union]]
             [clojure.java.io :refer [file resource]]))
 
 (def plugins
@@ -41,3 +42,12 @@
       (resource image-file) (:key plugin)
       (resource image-file-alt) :vanilla
       :else [:not-found image image-file image-file-alt])))
+
+(defn file-ignore-list []
+  "Returns a list of files that are configured to be ingored."
+  (into #{} (apply union (map (fn [plugin]
+                                (map (fn [file] (str (:resource-dir plugin)
+                                                     "/"
+                                                     file))
+                                     (:ignore-files plugin)))
+                              (vals plugins)))))
