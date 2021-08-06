@@ -57,12 +57,14 @@
 (deftask generate-data
   "Generate the data.edn file in public/ for local development."
   []
-  (let [edn (core/edn (concat (core/find-data-files "game/data")
-                              (core/find-data-files "gw/data")))]
-    (spit "public/data.edn" edn)))
-
-(deftask generate-small-data
-  "Generate data.edn based on a small amount of data, useful for rapid testing."
-  []
-  (let [edn (core/edn (concat (core/find-data-files "game/data/wanderer")))]
-    (spit "public/data.edn" edn)))
+  (try
+    (let [edn (core/edn (concat (endless-ships.core/find-data-files "game/data")
+                                (endless-ships.core/find-data-files "gw/data")))]
+      (println "Saving data.edn...")
+      (spit "public/data.edn" edn))
+    (catch Exception e
+      (println (format "Error while parsing '%s'" (:file (ex-data e))))
+      (println "Line numbers may be inaccurate due to preprocessing.")
+      (println (:failure (ex-data e))))
+    (finally
+      (println "Quitting..."))))
