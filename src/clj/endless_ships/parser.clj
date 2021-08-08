@@ -5,14 +5,6 @@
             [instaparse.core :as insta])
   (:import [java.lang Float Integer]))
 
-(defn file->race [path]
-  (let [file->race-overrides
-        { "game/data/human/marauders.txt" :pirate
-          "game/data/drak/indigenous.txt" :indigenous }]
-    (get file->race-overrides
-         path
-         (-> path file .getParentFile .getName .toLowerCase keyword))))
-
 (defn- ignore-unwanted-map-lines [lines]
   "Map files are large enough to slow down the parser, so we preprocess them to get rid of unwanted and unnecessary lines."
   (remove
@@ -35,8 +27,19 @@
         #(str/starts-with? % "\t\t\tsprite planet/ "))
       lines))
 
+(defn- tidy-editor-output [lines]
+  "Some tools such as Endless Sky Editor generate data files that break the parser, even if Endless Sky itself accepts them. This function just fixes the syntax problems."
+  (map (fn [line]
+         (cond (re-matches #"system [^\"`]+" line) (str (str/replace-first line #"^system " "system \"") "\"")
+               (re-matches #"\t+description [^\"`].*" line) (str (str/replace-first line #"description " "description \"") "\"")
+               (re-matches #"\t+spaceport [^\"`].*" line) (str (str/replace-first line #"spaceport " "spaceport \"") "\"")
+               (re-matches #"\t+description (\.|,|,,)" line) (str/replace-first line #"description.*" "description \"\"")
+               (re-matches #"\t+spaceport (\.|,|,,)" line) (str/replace-first line #"spaceport.*" "spaceport \"\"")
+               :else line))
+       lines))
+
 (defn- preprocess
-  "Removes comments, blank lines, and other unwanted text."
+  "Before getting sent to the parser, data should be preprocessed to fix or remove anything that would confuse the parser or slow it down."
   [text-str]
   (let [no-missions       (str/replace text-str #"(?m)^(mission|event|phrase|fleet|test|test-data) .+\n((\t.*)?(\n|\z))+" "")
         text-lines        (str/split-lines no-missions)
@@ -44,7 +47,8 @@
         lines-rstrip      (map #(str/replace % #"[ \t]+\z" "") lines-no-comments)
         lines-no-blanks   (remove str/blank? lines-rstrip)
         map-cleaned       (ignore-unwanted-map-lines lines-no-blanks)
-        text-no-blanks    (str/join \newline map-cleaned)
+        tidy              (tidy-editor-output map-cleaned)
+        text-no-blanks    (str/join \newline tidy)
         end-with-nl       (str/replace text-no-blanks #"\z" "\n")]
   (if (= end-with-nl "\n") "" end-with-nl)))
 
