@@ -5,7 +5,6 @@
             [endless-ships.utils.outfits :as utils]
             [endless-ships.subs :as subs]
             [endless-ships.routes :as routes]
-            [endless-ships.utils.tables :refer [default-table-config]]
             [endless-ships.utils.filters :as filters]
             [clojure.pprint :refer [pprint]]))
 
@@ -256,8 +255,7 @@
                    ^{:key type} [:div [:h2 (:header type-attrs)]
                                  [rt/reagent-table
                                   (rf/subscribe [::subs/outfits-of-type type column-model])
-                                  (merge {:column-model column-model,
+                                  {:column-model column-model,
                                           :data-root-key :outfits,
-                                          :entity-type type}
-                                         default-table-config)]]))
+                                          :entity-type type}]]))
                utils/types))])

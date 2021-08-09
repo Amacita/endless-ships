@@ -5,6 +5,7 @@
               [reagent.core :as r]
               [reagent.dom :as rdom]
               [reagent.dom :as rdom]
+              [reagent-table.utils :as utils]
               [endless-ships.subs :as subs]
               [endless-ships.events :as events]))
 
@@ -55,9 +56,6 @@
                                       (= direction :left))
                                  (cur (dec view-col))))
                          cur)))))
-
-(def default-config {:table
-                      {:style {:width nil}}})
 
 (defn- is-sorting
   "Return the sort direction for the specified column number, nil
@@ -125,7 +123,6 @@
            " ▼"])])
      ]))
 
-
 (defn- header-row-fn [column-model config data-atom state-atom]
   [:tr
    (doall (map-indexed (fn [view-col _]
@@ -134,7 +131,6 @@
                            ^{:key (or (:key render-info) model-col)}
                            [header-cell-fn render-info view-col model-col config state-atom data-atom]))
                        column-model))])
-
 
 (defn- row-fn [row row-num row-key-fn state-atom config]
   (let [state @state-atom
@@ -187,28 +183,6 @@
   "Set up in the initial column-index-to-model numbers"
   [headers]
   (into [] (map-indexed (fn [idx _] idx) headers)))
-
-(defn- the-table
-  [config column-model data-atom state-atom]
-  (let [scroll-height   (:scroll-height config)
-        table-container (:table-container config)]
-    (r/create-class { :reagent-render (fn [] [:div.reagent-table-container
-                                              (if scroll-height (recursive-merge
-                                                                  table-container
-                                                                  {:tab-index 0
-                                                                   :style     {:height   scroll-height
-                                                                               :overflow "auto"}})
-                                                table-container)
-                                              [:table.reagent-table (:table config)
-                                               (when-let [caption (:caption config)]
-                                                 caption)
-                                               [:thead (:thead config)
-                                                (header-row-fn column-model
-                                                               config
-                                                               data-atom
-                                                               state-atom)]
-                                               [:tbody (:tbody config)
-                                                (rows-fn @data-atom state-atom config)]]])})))
 
 (defn reagent-table
   "Create a table, rendering the vector held in data-atom and
@@ -268,17 +242,30 @@
   for example {:ul {:li {:class \"btn\"}}}
   "
   [data-atom config]
-  (let [config (recursive-merge default-config config)
+  (let [config (recursive-merge utils/default-table-config config)
         state-atom (or (:table-state config) (r/atom {})) ;; a place for the table local state
         {:keys [render-cell column-model]} config]
     (assert (and render-cell column-model)
             "Must provide :column-model and :render-cell in table config")
     (swap! state-atom assoc :col-index-to-model (init-column-index column-model))
     (fn []
-        [:div
-         (when-let [selector-config (:column-selection config)]
-           [column-selector state-atom selector-config column-model])
-         [the-table config column-model data-atom state-atom]])))
+      [:div
+       (when-let [selector-config (:column-selection config)]
+         [column-selector state-atom selector-config column-model])
+       [(let [table-container (:table-container config)]
+          (r/create-class
+            { :reagent-render (fn [] [:div.reagent-table-container
+                                      table-container
+                                      [:table.reagent-table (:table config)
+                                       (when-let [caption (:caption config)]
+                                         caption)
+                                       [:thead (:thead config)
+                                        (header-row-fn column-model
+                                                       config
+                                                       data-atom
+                                                       state-atom)]
+                                       [:tbody (:tbody config)
+                                        (rows-fn @data-atom state-atom config)]]])}))]])))
 
 (comment
   [@(rf/subscribe [::subs/sort-mode :ships 4])]

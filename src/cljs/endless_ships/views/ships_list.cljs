@@ -4,11 +4,9 @@
             [reagent-table.core :as rt]
             [endless-ships.events :as events]
             [endless-ships.subs :as subs]
-            [endless-ships.views.table :refer [table left-cell right-cell]]
             [endless-ships.views.utils :refer [nbsp nbspize race-label format-number]]
             [endless-ships.utils.ships :refer [total-cost or-zero columns]]
             [endless-ships.routes :as routes]
-            [endless-ships.utils.tables :refer [default-table-config]]
             [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
 
@@ -124,10 +122,9 @@
 (defn ships-list []
   [:div.app
    [ships-filter]
-   (let [config (merge {:column-model table-columns,
+   (let [config {:column-model table-columns,
                         :data-root-key :ships,
-                        :entity-type :ships}
-                       default-table-config)]
+                        :entity-type :ships}]
      [rt/reagent-table (rf/subscribe [::subs/filtered-ships table-columns]) config])])
 
 (comment

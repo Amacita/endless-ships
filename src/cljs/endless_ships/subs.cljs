@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf]
             [endless-ships.utils.ships :as ships]
             [endless-ships.utils.outfits :as outfits]
-            [endless-ships.utils.tables :as tables]
+            [reagent-table.utils :as tables]
             [endless-ships.views.utils :refer [kebabize]]))
 
 (rf/reg-sub ::loading?

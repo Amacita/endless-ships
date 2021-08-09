@@ -1,4 +1,6 @@
-(ns endless-ships.utils.tables)
+;;; Forked from https://github.com/Frozenlock/reagent-table
+
+(ns reagent-table.utils)
 
 (defn- cell-data
   "Resolve the data within a row for a specific column"
@@ -8,23 +10,6 @@
              (get-in row path))
         (and expr
              (expr row)))))
-
-(defn- cell-fn
-  "Return the cell hiccup form for rendering.
-   the specific column from :column-model
-  - row the current row
-  - row-num the row number
-  - col-num the column number in model coordinates"
-  [render-info row row-num col-num]
-  (let [{:keys [format attrs]
-         :or   {format identity
-                attrs (fn [_] {})}} render-info
-        data    (cell-data row render-info)
-        content (format data)
-        attrs   (attrs data)]
-    [:span
-     attrs
-     content]))
 
 (defn- date?
   "Returns true if the argument is a date, false otherwise."
@@ -88,6 +73,23 @@
             sorting))
         rows))
 
+(defn- cell-fn
+  "Return the cell hiccup form for rendering.
+   the specific column from :column-model
+  - row the current row
+  - row-num the row number
+  - col-num the column number in model coordinates"
+  [render-info row row-num col-num]
+  (let [{:keys [format attrs]
+         :or   {format identity
+                attrs (fn [_] {})}} render-info
+        data    (cell-data row render-info)
+        content (format data)
+        attrs   (attrs data)]
+    [:span
+     attrs
+     content]))
+
 (defn- row-key-fn
   "Return the reagent row key for the given row"
   [row row-num]
@@ -102,5 +104,6 @@
    :row-key      row-key-fn
    :column-selection {:ul {:li {:class "btn"}}}
    :table {:class "table table-hover table-striped table-bordered table-reactive"
-           :style {:border-spacing 0
+           :style {:width nil
+                   :border-spacing 0
                    :border-collapse "separate"}}})
