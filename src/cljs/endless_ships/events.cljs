@@ -5,7 +5,7 @@
             [endless-ships.views.utils :refer [kebabize]]
             [endless-ships.utils.outfits :as outfits]))
 
-(def initial-outfit-settings
+(defn- initial-outfit-settings []
   (reduce (fn [settings [name {:keys [initial-ordering]}]]
             (assoc settings
                    name
@@ -30,8 +30,9 @@
                                                    :filters-collapsed? true
                                                    :race-filter {}
                                                    :category-filter {}
-                                                   :license-filter {}}}
-                                          initial-outfit-settings)}
+                                                   :license-filter {}}
+                                           :plugins {:plugin-filter {}}}
+                                          (initial-outfit-settings))}
                     :http-xhrio {:method :get
                                  :uri "data.edn"
                                  :response-format (ajax/edn-response-format)
@@ -99,7 +100,11 @@
                                                         (map :licenses)
                                                         (apply concat)
                                                         (keep identity)
-                                                        initial-filter)}))))
+                                                        initial-filter)})
+                       (update-in [:settings :plugins]
+                                  merge
+                                  {:plugin-filter (->> (keys (:plugins data))
+                                                       initial-filter)}))))
 
 (rf/reg-event-db ::data-failed-to-load
                  (fn [db _]

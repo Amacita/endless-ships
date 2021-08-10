@@ -14,4 +14,8 @@
      [:li {:role :presentation
            :class (when (= route :outfits) :active)}
       [:a {:href (routes/url-for :outfits)}
-       "Outfits"]]]))
+       "Outfits"]]
+     [:li {:role :presentation
+           :class (when (= route :settings) :active)}
+      [:a {:href (routes/url-for :settings)}
+       "Settings"]]]))

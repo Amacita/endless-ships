@@ -164,6 +164,10 @@
             (fn [db [_ plugin-key]]
               (get (:plugins db) plugin-key)))
 
+(rf/reg-sub ::plugin-keys
+            (fn [db [_]]
+              (keys (:plugins db))))
+
 (rf/reg-sub ::debug
             (fn [db [_ path]]
               (get-in db path)))

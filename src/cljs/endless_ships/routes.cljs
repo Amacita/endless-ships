@@ -13,6 +13,7 @@
                          ["ships/" :ship/name] :ship
                          ["ships/" :ship/name "/" [name-pattern :ship/modification]] :ship-modification
                          "outfits" :outfits
+                         "settings" :settings
                          ["outfits/" [name-pattern :outfit/name]] :outfit}])
 
 (defn- parse-url [url]

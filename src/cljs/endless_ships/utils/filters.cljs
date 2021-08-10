@@ -54,20 +54,3 @@
           (if collapsed?
             [:span.glyphicon.glyphicon-menu-down]
             [:span.glyphicon.glyphicon-menu-up])]]))))
-
-(defn plugins-ui []
-  (let [height (ra/atom nil)]
-    (fn []
-      [:div.filters-group
-       [:div {:style {:overflow "hidden"
-                      :transition "max-height 0.8s"
-                      :max-height @height}}
-        [:div.container-fluid
-         {:ref #(when % (reset! height (.-clientHeight %)))}
-         [:div.row
-          (map #(apply filter-group %) (:ships (page-filters)))
-          ]]]
-       [:button.btn.btn-default
-        {:type "button"
-         :on-click #(rf/dispatch [::events/toggle-ship-filters-visibility])}
-        "Filters "]])))
