@@ -3,8 +3,7 @@
             [day8.re-frame.http-fx]
             [ajax.edn :as ajax]
             [endless-ships.views.utils :refer [kebabize]]
-            [endless-ships.utils.outfits :as outfits]
-            [clojure.pprint :refer [pprint]]))
+            [endless-ships.utils.outfits :as outfits]))
 
 (def initial-outfit-settings
   (reduce (fn [settings [name {:keys [initial-ordering]}]]

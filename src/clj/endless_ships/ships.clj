@@ -88,7 +88,7 @@
                                :guns :turrets :drones :fighters
                                :self-destruct :ramscoop])
                  (assoc :race (file->race (:file cship)))
-                 (assoc :plugin (:key (file->plugin (:file cship))))
+                 (assoc-in [:meta :plugin] (:key (file->plugin (:file cship))))
                  (assoc-in [:meta :image :file] (ship->image-file cship))
                  (#(assoc-in % [:meta :image :origin] (image-source %)))
                  (rename-keys {:cost :empty-hull-cost}))))

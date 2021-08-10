@@ -166,7 +166,6 @@
                                         vec)
                       :file file
                       :thumbnail thumbnail
-                      :plugin (:key (file->plugin file))
                       :race (file->race file)})))
        normalize-weapon-attrs
        (map (fn [outfit]
@@ -176,6 +175,7 @@
                       attribute-convertors)))
        (map (fn [outfit]
               (-> outfit
+                  (assoc-in [:meta :plugin] (:key (file->plugin (:file outfit))))
                   (assoc-in [:meta :image :file] (outfit->image-file outfit))
                   (#(assoc-in % [:meta :image :origin] (image-source %))))))))
 
