@@ -6,56 +6,9 @@
             [endless-ships.subs :as subs]
             [endless-ships.views.utils :refer [nbsp nbspize race-label format-number]]
             [endless-ships.utils.ships :refer [total-cost or-zero columns]]
+            [endless-ships.utils.filters :as filters]
             [endless-ships.routes :as routes]
-            [clojure.pprint :refer [pprint]]
             [clojure.string :as str]))
-
-(defn- filter-group
-  [header subscription entity-type filter-type]
-  [:div.col-lg-2.col-md-3
-   [:div.checkbox
-    [:label.checkbox-header
-     [:input
-      {:type "checkbox"
-       :checked (let [filters (vals @(rf/subscribe [subscription]))]
-                  (cond (every? true? filters) true
-                        (some true? filters) false
-                        :else false))
-       :on-change #(rf/dispatch [::events/toggle-filter-group entity-type filter-type])}]
-     header]]
-   (for [[item checked?] @(rf/subscribe [subscription])]
-     ^{:key item} [:div.checkbox
-                   [:label
-                    [:input {:type "checkbox"
-                             :checked checked?
-                             :on-change #(rf/dispatch [::events/toggle-filter entity-type filter-type item])}]
-                    (str/capitalize (name item))]])])
-
-(defn ships-filter []
-  (let [height (ra/atom nil)]
-    (fn []
-      (let [collapsed? @(rf/subscribe [::subs/ship-filters-collapsed?])
-            race-filter @(rf/subscribe [::subs/ships-race-filter])
-            category-filter @(rf/subscribe [::subs/ships-category-filter])
-            license-filter @(rf/subscribe [::subs/ships-license-filter])]
-        [:div.filters-group
-         [:div {:style {:overflow "hidden"
-                        :transition "max-height 0.8s"
-                        :max-height (if collapsed? 0 @height)}}
-          [:div.container-fluid
-           {:ref #(when % (reset! height (.-clientHeight %)))}
-           [:div.row
-             (filter-group "Race" ::subs/ships-race-filter :ships :race-filter)
-             (filter-group "Category" ::subs/ships-category-filter :ships :category-filter)
-             (filter-group "License" ::subs/ships-license-filter :ships :license-filter)
-             ]]]
-         [:button.btn.btn-default
-          {:type "button"
-           :on-click #(rf/dispatch [::events/toggle-ship-filters-visibility])}
-          "Filters "
-          (if collapsed?
-            [:span.glyphicon.glyphicon-menu-down]
-            [:span.glyphicon.glyphicon-menu-up])]]))))
 
 (def table-columns
   [{:header "Name"
@@ -121,7 +74,7 @@
 
 (defn ships-list []
   [:div.app
-   [ships-filter]
+   [filters/ui :ships]
    (let [config {:column-model table-columns,
                         :data-root-key :ships,
                         :entity-type :ships}]

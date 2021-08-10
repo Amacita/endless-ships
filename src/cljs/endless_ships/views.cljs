@@ -3,9 +3,10 @@
             [endless-ships.subs :as subs]
             [clojure.pprint :refer [pprint]]
             [endless-ships.views.navigation :refer [navigation]]
-            [endless-ships.views.ships-list :refer [ships-list ships-filter]]
+            [endless-ships.views.ships-list :refer [ships-list]]
             [endless-ships.views.ship-page :refer [ship-page]]
             [endless-ships.views.outfits :refer [outfits]]
+            [endless-ships.views.settings :refer [settings-page]]
             [endless-ships.views.outfit-page :refer [outfit-page]]))
 
 (defn current-page []
@@ -15,6 +16,7 @@
       :ship [ship-page (:ship/name params) nil]
       :ship-modification [ship-page (:ship/name params) (:ship/modification params)]
       :outfits [outfits]
+      :settings [settings-page]
       :outfit [outfit-page (:outfit/name params)]
       [:div (str "Route unknown: " route)])))
 

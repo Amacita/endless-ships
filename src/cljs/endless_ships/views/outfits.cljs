@@ -5,8 +5,7 @@
             [endless-ships.utils.outfits :as utils]
             [endless-ships.subs :as subs]
             [endless-ships.routes :as routes]
-            [endless-ships.utils.filters :as filters]
-            [clojure.pprint :refer [pprint]]))
+            [endless-ships.utils.filters :as filters]))
 
 (def default-columns
   [{:header "Name"
@@ -249,7 +248,7 @@
 
 (defn outfits []
   [:div.app
-   [filters/ui]
+   [filters/ui :outfits]
    (doall (map (fn [[type type-attrs]]
                  (let [column-model (into [] (concat default-columns (type columns)))]
                    ^{:key type} [:div [:h2 (:header type-attrs)]
