@@ -153,7 +153,7 @@
 (rf/reg-sub ::license-label
             (fn [db [_ license]]
               (let [style (get (:licenses db) license)]
-                ^{:key license} [:span.label {:class (str "label-" style)} license])))
+                ^{:key license} [:span.badge.rounded-pill {:class (str "label-" style)} license])))
 
 (rf/reg-sub ::license-style
             (fn [db [_ license]]

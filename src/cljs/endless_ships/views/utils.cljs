@@ -15,7 +15,7 @@
       str/lower-case))
 
 (defn race-label [race]
-  ^{:key race} [:span.label
+  ^{:key race} [:span.badge.rounded-pill
                 {:class (str "label-" (-> race name kebabize))}
                 race])
 
