@@ -97,12 +97,9 @@
 
 (def default-table-config
   {:render-cell cell-fn
-   ;:table-state  (atom {:draggable true})
-   ;:scroll-height "80vh"
    :th           {:scope "col"}
    :sort         table-sort-fn
    :row-key      row-key-fn
-   :column-selection {:ul {:li {:class "btn"}}}
    :table {:class "table table-hover table-striped table-bordered table-reactive"
            :style {:width nil
                    :border-spacing 0

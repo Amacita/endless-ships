@@ -20,7 +20,7 @@
    {:header "Licenses"
     :path [:licenses]
     :key :licenses
-    :format #(interpose " " (doall (map (fn [license] ^{:key license} [:span.label
+    :format #(interpose " " (doall (map (fn [license] ^{:key license} [:span.badge.rounded-pill
                                                        {:class (str "label-" @(rf/subscribe [::subs/license-style license]))}
                                                        license]) %)))
     :attrs (fn [data] {:style {:text-align "center" :display "block"}})}

@@ -7,6 +7,7 @@
               [reagent.dom :as rdom]
               [reagent-table.utils :as utils]
               [endless-ships.subs :as subs]
+              [endless-ships.views.utils :refer [kebabize]]
               [endless-ships.events :as events]))
 
 (defn- recursive-merge
@@ -23,39 +24,6 @@
   (-> @state-atom
       :col-index-to-model
       (nth view-col)))
-
-(defn- reorder-column-index-to-model!
-  "Maintain the column-index-to-model mapping after
-  view reordering. The arguments are the drag and drop
-  columns, in view coordinates."
-  [drag-col drop-col state-atom]
-  (let [cur          (:col-index-to-model @state-atom)
-        lower-bound  (min drag-col drop-col)
-        upper-bound  (max drag-col drop-col)
-        direction    (if (< drag-col drop-col) :right :left)
-        moving-model (column-index-to-model state-atom drag-col)]
-    ;(.log js/console (str "drag-col: " drag-col))
-    ;(.log js/console (str "drop-col: " drop-col))
-    (swap! state-atom
-           assoc :col-index-to-model
-                 (into []
-                       (map-indexed
-                         (fn [view-col model-col]
-                           (cond (= view-col drop-col)
-                                 (cur drag-col)
-
-                                 (or (< view-col lower-bound)
-                                     (> view-col upper-bound))
-                                 (cur view-col)
-
-                                 (and (>= view-col lower-bound)
-                                      (= direction :right))
-                                 (cur (inc view-col))
-
-                                 (and (<= view-col upper-bound)
-                                      (= direction :left))
-                                 (cur (dec view-col))))
-                         cur)))))
 
 (defn- is-sorting
   "Return the sort direction for the specified column number, nil
@@ -77,7 +45,6 @@
                        data-atom]
   (let [state         @state-atom
         col-hidden    (:col-hidden state)
-        {:keys [draggable]} state
         sort-fn       (:sort config)
         data-root-key (:data-root-key config)
         entity-type    (:entity-type config)
@@ -88,25 +55,9 @@
                           (rf/dispatch [::events/toggle-ordering entity-type model-col append])))]
     [:th
      (recursive-merge
-      (:th config)
-      {:draggable draggable
-       :on-drag-start #(do (doto (.-dataTransfer %)
-                             (.setData "text/plain" "")) ;; for Firefox
-                           (swap! state-atom assoc :col-reordering true))
-       :on-drag-over #(swap! state-atom assoc :col-hover view-col)
-       :on-drag-end #(let [col-hover (:col-hover @state-atom)
-                           col-sorting (first (get @state-atom :sorting))]
-                       (when-not (= view-col col-hover) ;; if dropped on another column
-                         (reorder-column-index-to-model! view-col col-hover state-atom))
-                       (swap! state-atom assoc
-                              :col-hover nil
-                              :col-reordering nil))
-       :style (merge (get-in config [:th :style])
-                     {:cursor (if draggable "move" nil)
-                      :display (when (get col-hidden model-col) "none")}
-                     (when (and (:col-reordering state)
-                                (= view-col (:col-hover state)))
-                       {:border-right "6px solid #3366CC"}))})
+       (:th config)
+       {:style (merge (get-in config [:th :style])
+                      {:display (when (get col-hidden model-col) "none")})})
      [:span {:style {:padding-right 50}} (:header render-info)]
      (when (and sort-fn sortable)
        [:span {:style {:position "absolute"
@@ -135,9 +86,9 @@
 (defn- row-fn [row row-num row-key-fn state-atom config]
   (let [state @state-atom
         col-hidden (:col-hidden state)
-        col-key-fn (:col-key       config (fn [row row-num col-num] col-num))
-        col-model  (:column-model  config)
-        cell-fn    (:render-cell   config)]
+        col-key-fn (:col-key config (fn [row row-num col-num] col-num))
+        col-model  (:column-model config)
+        cell-fn    (:render-cell config)]
     ^{:key (row-key-fn row row-num)}
     [:tr
      (doall
@@ -145,10 +96,7 @@
                       (let [model-col (column-index-to-model state-atom view-col)]
                         ^{:key (col-key-fn row row-num model-col)}
                         [:td
-                         {:style  {:border-right (when (and (:col-reordering state)
-                                                            (= view-col (:col-hover state)))
-                                                             "2px solid #3366CC")
-                                   :display      (when (get col-hidden model-col) "none")}}
+                         {:style {:display (when (get col-hidden model-col) "none")}}
                          (cell-fn (col-model model-col) row row-num model-col)]))
                     (or
                       col-model
@@ -160,24 +108,6 @@
            (fn [row-num row]
              (row-fn row row-num row-key-fn state-atom config))
            rows))))
-
-(defn- column-selector [state-atom selector-config column-model]
-  (let [hidden-cols (r/cursor state-atom [:col-hidden])
-        li-config (get-in selector-config [:ul :li])]
-    [:ul ;(:ul selector-config)
-     (doall
-       (map-indexed (fn [view-col _]
-                      (let [model-col (column-index-to-model state-atom view-col)
-                            render-info (column-model model-col)
-                            hidden-a (r/cursor hidden-cols [model-col])]
-                        ^{:key (or (:key render-info) model-col)}
-                        [:li (recursive-merge
-                               {:style {:margin 8
-                                        :cursor "pointer"}
-                                :on-click #(do (swap! hidden-a not) nil)}
-                               li-config)
-                         (:header render-info) " "(if @hidden-a "☐" "☑")]))
-                    column-model))]))
 
 (defn- init-column-index
   "Set up in the initial column-index-to-model numbers"
@@ -237,9 +167,6 @@
   :tbody the attributes applied to [:tbody ...]
 
   :caption an optional hiccup form for a caption
-
-  :column-selection optional attributes to display visibly column toggles
-  for example {:ul {:li {:class \"btn\"}}}
   "
   [data-atom config]
   (let [config (recursive-merge utils/default-table-config config)
@@ -250,8 +177,31 @@
     (swap! state-atom assoc :col-index-to-model (init-column-index column-model))
     (fn []
       [:div
-       (when-let [selector-config (:column-selection config)]
-         [column-selector state-atom selector-config column-model])
+       ; Column selector
+       [:div.column-selector
+       (let [hidden-cols (r/cursor state-atom [:col-hidden])]
+          (doall
+            (map-indexed (fn [view-col _]
+                           (let [model-col (column-index-to-model state-atom view-col)
+                                 render-info (column-model model-col)
+                                 hidden-a (r/cursor hidden-cols [model-col])
+                                 checkbox-id (str "column-select-"
+                                                  (name (:data-root-key config)) "-"
+                                                  (name (:entity-type config)) "-"
+                                                  (name (or (:key render-info) model-col)))]
+                             ^{:key checkbox-id}
+                             [:div.form-check
+                              [:input.form-check-input
+                               {:type "checkbox"
+                                :value ""
+                                :id checkbox-id
+                                :checked (not @hidden-a)
+                                :on-change #(do (swap! hidden-a not) nil)}]
+                              [:label.form-check-label
+                               {:for checkbox-id}
+                               (:header render-info)]]))
+                         column-model)))]
+       ; Table
        [(let [table-container (:table-container config)]
           (r/create-class
             { :reagent-render (fn [] [:div.reagent-table-container
