@@ -17,18 +17,22 @@
     (js/window.encodeURI (str plugin-dir filename))))
 
 (defn ship-modifications [ship-name selected-modification-slug modification-names]
-  [:div.panel.panel-default
-   [:div.panel-heading "Modifications"]
-   [:div.panel-body
-    [:ul.nav.nav-pills.nav-stacked
-     [:li {:role "presentation"
-           :class (when (nil? selected-modification-slug) "active")}
-      (routes/ship-link ship-name)]
+  [:div.card
+   [:h2.card-header "Modifications"]
+   [:div.card-body
+    [:div.list-group
+     [:a.list-group-item.list-group-item-action
+      {:class (when (nil? selected-modification-slug) "active")
+       :aria-current (when (nil? selected-modification-slug) "true")
+       :href (routes/ship-url ship-name)}
+      (nbspize ship-name)]
      (for [modification-name modification-names]
        ^{:key modification-name}
-       [:li {:role "presentation"
-             :class (when (= (kebabize modification-name) selected-modification-slug) "active")}
-        (routes/ship-modification-link ship-name modification-name)])]]])
+       [:a.list-group-item.list-group-item-action
+        {:class (when (= (kebabize modification-name) selected-modification-slug) "active")
+        :aria-current (when (= (kebabize modification-name) selected-modification-slug) "true")
+        :href (routes/ship-modification-url ship-name modification-name)}
+       (nbspize modification-name)])]]])
 
 (def outfit-categories
   ["Guns"
@@ -41,25 +45,29 @@
    "Hand to Hand"
    "Special"])
 
-(defn outfit-item [name quantity]
-  (let [link (routes/outfit-link name)]
-    (if (= quantity 1)
-      [:li.list-group-item link]
-      [:li.list-group-item [:span.badge quantity] link])))
-
 (defn outfits-list [outfits]
-  (let [items (->> outfit-categories
-                   (map (fn [category]
-                          (when (contains? outfits category)
-                            (let [header ^{:key category} [:span.list-group-item.disabled category]
-                                  items (->> (get outfits category)
-                                             (sort-by #(get-in % [:outfit :name]))
-                                             (map (fn [{:keys [outfit quantity]}]
-                                                    ^{:key (:name outfit)}
-                                                    [outfit-item (:name outfit) quantity])))]
-                              (cons header items)))))
-                   (keep identity))]
-    [:ul.list-group items]))
+  [:div.card
+   [:h2.card-header "Default Outfits"]
+    (->> outfit-categories
+         (map (fn [category]
+                (when (contains? outfits category)
+                  ^{:key category}
+                  [:div.card-body
+                   [:div.card-title category]
+                   [:ul.list-group
+                    (->> (get outfits category)
+                         (sort-by #(get-in % [:outfit :name]))
+                         (map (fn [{:keys [outfit quantity]}]
+                                ^{:key (:name outfit)}
+                                (let [link (routes/outfit-link (:name outfit))]
+                                  (if (= quantity 1)
+                                    [:li.list-group-item link]
+                                    [:li
+                                     {:class [:list-group-item
+                                              :d-flex
+                                              :justify-content-between
+                                              :align-items-center]}
+                                     link [:span.badge.bg-secondary.rounded-pill quantity]])))))]]))))])
 
 (defn ship-page [ship-name ship-modification]
   (let [ship @(rf/subscribe [::subs/ship ship-name])
@@ -79,11 +87,9 @@
     [:div.app
      [:div.row
       [:div.col-md-6
-       [:div.panel.panel-default
-        [:div.panel-heading (:name ship)]
-        [:div.panel-body
-         [:div.media
-          [:div.media-body
+       [:div.card
+        [:h1.card-header (:name ship)]
+        [:div.card-body]
            [:ul
             (render-attribute ship-with-modification total-cost "cost")
             (render-attribute ship-with-modification :shields "shields")
@@ -107,16 +113,14 @@
             (render-percentage ship-with-modification :self-destruct "self-destruct")]
            (when (some? (:licenses ship-with-modification))
              (render-licenses (:licenses ship-with-modification)))]
-          [:div.media-right
-           [:img.ship-sprite {:src (image-url ship-with-modification)}]]]]]
+          ;[:div.media-right
+          ; [:img.ship-sprite {:src (image-url ship-with-modification)}]]]]]
        (when (seq modification-names)
          (ship-modifications (:name ship) ship-modification modification-names))]
       [:div.col-md-6
-       [:div.panel.panel-default
-        [:div.panel-heading "Default outfits"]
-        [:div.panel-body (outfits-list ship-outfits)]]]]
+        [outfits-list ship-outfits]]]
      (when (seq (:description ship-with-modification))
        [:div.row
         [:div.col-md-12
-         [:div.well
+         [:div.card
           (render-description ship-with-modification)]]])]))

@@ -38,9 +38,15 @@
   (let [url (url-for :ship :ship/name (kebabize name))]
     [:a {:href url} (nbspize name)]))
 
+(defn ship-url [name]
+  (url-for :ship :ship/name (kebabize name)))
+
 (defn ship-modification-link [name modification]
   (let [url (url-for :ship-modification :ship/name (kebabize name) :ship/modification (kebabize modification))]
     [:a {:href url} (nbspize modification)]))
+
+(defn ship-modification-url [name modification]
+  (url-for :ship-modification :ship/name (kebabize name) :ship/modification (kebabize modification)))
 
 (defn outfit-link [name]
   (let [url (url-for :outfit :outfit/name (kebabize name))]
