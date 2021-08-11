@@ -50,7 +50,8 @@
 
 (defn image-source [item]
   "Given a ship or outfit, tells you whether its image is in the plugin or the base game."
-  (let [plugin (get plugins (:plugin item))
+  (assert (get-in item [:meta :plugin]) "No plugin defined for item")
+  (let [plugin (get plugins (get-in item [:meta :plugin]))
         image (get-in item [:meta :image :file] "key-not-found")
         image-file (str (:resource-dir plugin) "/images/" image)
         image-file-alt (str (:resource-dir (:vanilla plugins)) "/images/" image)]

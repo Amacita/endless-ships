@@ -89,7 +89,9 @@
       [:div.col-md-6
        [:div.card.text-dark.bg-light.mb-3
         [:h3.card-header (:name ship)]
-        [:div.card-body]
+        [:div.card-body.clearfix.pr-3
+        [:img.ship-sprite.float-md-end.mb-3.ms-md-3
+         {:src (image-url ship-with-modification)}]
            [:ul
             (render-attribute ship-with-modification total-cost "cost")
             (render-attribute ship-with-modification :shields "shields")
@@ -112,9 +114,7 @@
             (render-attribute ship-with-modification :cloak "cloak")
             (render-percentage ship-with-modification :self-destruct "self-destruct")]
            (when (some? (:licenses ship-with-modification))
-             (render-licenses (:licenses ship-with-modification)))]
-          ;[:div.media-right
-          ; [:img.ship-sprite {:src (image-url ship-with-modification)}]]]]]
+             (render-licenses (:licenses ship-with-modification)))]]
        (when (seq modification-names)
          (ship-modifications (:name ship) ship-modification modification-names))]
       [:div.col-md-6
