@@ -90,7 +90,7 @@
        [:div.card.text-dark.bg-light.mb-3
         [:h3.card-header (:name ship)]
         [:div.card-body.clearfix.pr-3
-        [:img.ship-sprite.float-md-end.mb-3.ms-md-3
+        [:img.ship-sprite.float-end.mb-3.ms-md-3
          {:src (image-url ship-with-modification)}]
            [:ul
             (render-attribute ship-with-modification total-cost "cost")
