@@ -46,21 +46,20 @@
 
 (defn interface []
   [:div.container-fluid
+   (if @(rf/subscribe [::subs/loading?])
+     [:pre "Loading..."]
+     (if @(rf/subscribe [::subs/loading-failed?])
+       [:pre "Failed to load data."]
+       [:div.row
+        [:div.col-lg-12
+         [game-version]
+         [gw-version]
+         [navigation]]]))
    [:div.row
     [:div.col-lg-12
-     (if @(rf/subscribe [::subs/loading?])
-       [:div.app "Loading..."]
-       (if @(rf/subscribe [::subs/loading-failed?])
-         [:div.app "Failed to load data."]
-         [:div.app
-          [game-version]
-          [gw-version]
-          [navigation]
 
-          ;; Print a list of all ships that don't have a category defined.
-          ;; This is important because a ship with a null category will break the website.
-          ;[:pre (with-out-str (pprint (remove :category @(rf/subscribe [::subs/ships]))))]
+     ;; Print a list of all ships that don't have a category defined.
+     ;; This is important because a ship with a null category will break the website.
+     ;[:pre (with-out-str (pprint (remove :category @(rf/subscribe [::subs/ships]))))]
 
-          [current-page]
-          ]))
-     ]]])
+     [current-page]]]])

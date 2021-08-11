@@ -75,6 +75,7 @@
 (defn ships-list []
   [:div.app
    [filters/ui :ships]
+   [:h3 "Ships"]
    (let [config {:column-model table-columns,
                         :data-root-key :ships,
                         :entity-type :ships}]

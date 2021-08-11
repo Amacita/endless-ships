@@ -17,8 +17,8 @@
     (js/window.encodeURI (str plugin-dir filename))))
 
 (defn ship-modifications [ship-name selected-modification-slug modification-names]
-  [:div.card
-   [:h2.card-header "Modifications"]
+  [:div.card.text-dark.bg-light
+   [:h3.card-header "Modifications"]
    [:div.card-body
     [:div.list-group
      [:a.list-group-item.list-group-item-action
@@ -46,8 +46,8 @@
    "Special"])
 
 (defn outfits-list [outfits]
-  [:div.card
-   [:h2.card-header "Default Outfits"]
+  [:div.card.text-dark.bg-light
+   [:h3.card-header "Default Outfits"]
     (->> outfit-categories
          (map (fn [category]
                 (when (contains? outfits category)
@@ -85,10 +85,10 @@
                                     :quantity quantity})))
                           (group-by #(get-in % [:outfit :category])))]
     [:div.app
-     [:div.row
+     [:div.row.mb-3
       [:div.col-md-6
-       [:div.card
-        [:h1.card-header (:name ship)]
+       [:div.card.text-dark.bg-light.mb-3
+        [:h3.card-header (:name ship)]
         [:div.card-body]
            [:ul
             (render-attribute ship-with-modification total-cost "cost")
@@ -121,6 +121,7 @@
         [outfits-list ship-outfits]]]
      (when (seq (:description ship-with-modification))
        [:div.row
-        [:div.col-md-12
-         [:div.card
-          (render-description ship-with-modification)]]])]))
+        [:div.col
+         [:div.card.text-dark.bg-light
+          [:div.card-body
+           [:p.card-text (render-description ship-with-modification)]]]]])]))
