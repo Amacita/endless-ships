@@ -57,14 +57,16 @@
             (fn []
               [(rf/subscribe [::ships])
                (rf/subscribe [::entity-ordering :ships])
+               (rf/subscribe [::filter :plugins :plugin-filter])
                (rf/subscribe [::ships-race-filter])
                (rf/subscribe [::ships-category-filter])
                (rf/subscribe [::ships-license-filter])])
-            (fn [[all-ships ordering race-filter category-filter license-filter] [_ column-model]]
+            (fn [[all-ships ordering plugin-filter race-filter category-filter license-filter] [_ column-model]]
               (let [filtered-ships
                     (->> all-ships
                          (filter (fn [ship]
-                                   (and (get race-filter (:race ship))
+                                   (and (get plugin-filter (get-in ship [:meta :plugin] ship))
+                                        (get race-filter (:race ship))
                                         (get category-filter (:category ship))
                                         (not-any? (fn [license]
                                                     (not (get license-filter license)))
@@ -130,13 +132,15 @@
             (fn [[_ outfit-type]]
               [(rf/subscribe [::outfits])
                (rf/subscribe [::entity-ordering outfit-type])
+               (rf/subscribe [::filter :plugins :plugin-filter])
                (rf/subscribe [::filter :outfits :race-filter])
                (rf/subscribe [::filter :outfits :license-filter])])
-            (fn [[outfits ordering race-filter license-filter] [_ outfit-type column-model]]
+            (fn [[outfits ordering plugin-filter race-filter license-filter] [_ outfit-type column-model]]
               (let [filtered-outfits (->> outfits
                                           (filter (get-in outfits/types [outfit-type :filter])) ; filter function defined in data
                                           (filter (fn [outfit]
-                                                    (and (get race-filter (:race outfit))
+                                                    (and (get plugin-filter (get-in outfit [:meta :plugin] outfit))
+                                                         (get race-filter (:race outfit))
                                                          (not-any? (fn [license]
                                                                      (not (get license-filter license)))
                                                                    (get outfit :licenses []))))))]
