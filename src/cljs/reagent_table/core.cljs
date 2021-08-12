@@ -179,6 +179,7 @@
       [:div
        ; Column selector
        [:div.column-selector
+        [:div.d-grid.d-sm-block.mx-auto
        (let [hidden-cols (r/cursor state-atom [:col-hidden])]
           (doall
             (map-indexed (fn [view-col _]
@@ -190,17 +191,17 @@
                                                   (name (:entity-type config)) "-"
                                                   (name (or (:key render-info) model-col)))]
                              ^{:key checkbox-id}
-                             [:div.form-check
-                              [:input.form-check-input
+                             [:div.form-check.pe-5.text-nowrap.col-md-3.float-md-start
+                              [:input.form-check-input.me-1
                                {:type "checkbox"
                                 :value ""
                                 :id checkbox-id
                                 :checked (not @hidden-a)
                                 :on-change #(do (swap! hidden-a not) nil)}]
-                              [:label.form-check-label
-                               {:for checkbox-id}
+                             [:label.form-check-label
+                              {:for checkbox-id}
                                (:header render-info)]]))
-                         column-model)))]
+                         column-model)))]]
        ; Table
        [(let [table-container (:table-container config)]
           (r/create-class
