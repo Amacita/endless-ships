@@ -1,6 +1,7 @@
 (ns endless-ships.plugins
   (:require [clojure.string :as str]
             [clojure.set :refer [union]]
+            [clojure.java.shell :refer [sh]]
             [clojure.java.io :refer [file resource]]))
 
 (def plugins
@@ -28,6 +29,24 @@
     :base-image-url "https://raw.githubusercontent.com/1010todd/Galactic-War/master/images/"
     :ignore-files #{"data/Ultaka/Ultaka mothership weapon.txt"}
     :race-overrides {}}})
+
+(defn- repo-version [dir]
+  "Tells you the version of a git repository."
+  (let [git-cmd (fn [& args]
+                  (->> (concat ["git"] args [:dir dir])
+                       (apply sh)
+                       :out
+                       str/trim))
+        commit-hash (git-cmd "rev-parse" "HEAD")
+        commit-date (-> (git-cmd "show" "-s" "--format=%ci" "HEAD")
+                        (str/split #" ")
+                        first)
+        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD" "--tags")
+                                    (str/split #"-"))]
+    (merge {:hash commit-hash
+            :date commit-date}
+           (when (nil? commits-since-tag)
+             {:tag tag}))))
 
 (defn file->plugin [file]
   "Tells you which plugin a file is from."
@@ -68,3 +87,13 @@
                                                      file))
                                      (:ignore-files plugin)))
                               (vals plugins)))))
+
+(defn processed-plugins []
+  "The final plugin data that get passed to the web application side of things
+  consist of configured and generated data. The configured data are defined in
+  the 'plugins' structure. Currently the only generated data are the plugin
+  versions, which we get from git commands.
+  "
+  (let [updated-plugins (for [plugin (vals plugins)]
+                          (assoc-in plugin [:version] (repo-version (str "./resources/" (:resource-dir plugin)))))]
+    (zipmap (map :key updated-plugins) updated-plugins)))

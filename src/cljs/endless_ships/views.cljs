@@ -20,30 +20,6 @@
       :outfit [outfit-page (:outfit/name params)]
       [:div (str "Route unknown: " route)])))
 
-(defn gw-version []
-  (let [{:keys [hash date tag]} @(rf/subscribe [::subs/gw-version])]
-    [:div.game-version
-     (if (some? tag)
-       [:a {:href (str "https://github.com/1010todd/galactic-war/releases/tag/" tag)
-            :target :blank}
-        "Galactic War " tag]
-       [:a {:href (str "https://github.com/1010todd/galactic-war/commit/" hash)
-            :target :blank}
-        "galactic-war@" (subs hash 0 7)])
-     " (" date ")"]))
-
-(defn game-version []
-  (let [{:keys [hash date tag]} @(rf/subscribe [::subs/game-version])]
-    [:div.game-version
-     (if (some? tag)
-       [:a {:href (str "https://github.com/endless-sky/endless-sky/releases/tag/" tag)
-            :target :blank}
-        "Endless Sky " tag]
-       [:a {:href (str "https://github.com/endless-sky/endless-sky/commit/" hash)
-            :target :blank}
-        "endless-sky@" (subs hash 0 7)])
-     " (" date ")"]))
-
 (defn interface []
   [:div.container-fluid
    (if @(rf/subscribe [::subs/loading?])
@@ -52,8 +28,6 @@
        [:pre "Failed to load data."]
        [:div.row
         [:div.col-lg-12
-         [game-version]
-         [gw-version]
          [navigation]]]))
    [:div.row
     [:div.col-lg-12

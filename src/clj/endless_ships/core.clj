@@ -1,6 +1,5 @@
 (ns endless-ships.core
   (:require [clojure.java.io :refer [file resource]]
-            [clojure.java.shell :refer [sh]]
             [clojure.string :as str]
             [fipp.edn :refer [pprint] :rename {pprint fipp}]
             [camel-snake-kebab.core :as csk]
@@ -20,24 +19,6 @@
                                     relative-path (subs absolute-path (+ 1 (count resource-root)))]
                                 relative-path)))
          (remove #(contains? unwanted-files %)))))
-
-(defn repo-version [dir]
-  "Tells you the version of a git repository."
-  (let [git-cmd (fn [& args]
-                  (->> (concat ["git"] args [:dir dir])
-                       (apply sh)
-                       :out
-                       str/trim))
-        commit-hash (git-cmd "rev-parse" "HEAD")
-        commit-date (-> (git-cmd "show" "-s" "--format=%ci" "HEAD")
-                        (str/split #" ")
-                        first)
-        [tag commits-since-tag] (-> (git-cmd "describe" "HEAD" "--tags")
-                                    (str/split #"-"))]
-    (merge {:hash commit-hash
-            :date commit-date}
-           (when (nil? commits-since-tag)
-             {:tag tag}))))
 
 (defn government-colors [files]
   "Gets government colors in CSS format. The CSS for government labels is maintained by hand."
@@ -69,9 +50,7 @@
                     :outfits complete-outfits
                     :outfitters complete-outfitters
                     :licenses (licenses->race complete-outfits complete-ships)
-                    :plugins plugins/plugins
-                    :version (repo-version "./resources/game")
-                    :gw-version (repo-version "./resources/gw")}]
+                    :plugins (plugins/processed-plugins)}]
       (println "Formatting data...")
       (let [edn-pretty-data (time (with-out-str (fipp edn-data)))]
         (println "Saving data.edn...")

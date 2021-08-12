@@ -146,13 +146,17 @@
                                                                    (get outfit :licenses []))))))]
                 (tables/table-sort-fn filtered-outfits column-model ordering))))
 
-(rf/reg-sub ::game-version
-            (fn [db]
-              (:version db)))
+(rf/reg-sub ::plugin-version
+            (fn [db [_ plugin]]
+              (get-in db [:plugins plugin :version])))
 
-(rf/reg-sub ::gw-version
-            (fn [db]
-              (:gw-version db)))
+(rf/reg-sub ::plugin-repository
+            (fn [db [_ plugin]]
+              (get-in db [:plugins plugin :repository])))
+
+(rf/reg-sub ::plugin-name
+            (fn [db [_ plugin]]
+              (get-in db [:plugins plugin :name])))
 
 (rf/reg-sub ::license-label
             (fn [db [_ license]]
