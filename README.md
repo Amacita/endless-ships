@@ -39,6 +39,7 @@ Here are some things known to break the program.
 
 - Submunitions that don't have a `lifetime` defined.
 - Ships that don't have a `category` defined.
+- Ship variants that aren't proper variants, e.g. `ship "Fury (Missiles)"` instead of `ship "Fury" "Fury (Missiles)"`.
 - Invalid syntax
    - Missing a space between an attribute and its value, e.g. `"shields"500`
    - Trying to place a comment with `//` instead of `#`
