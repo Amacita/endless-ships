@@ -28,7 +28,36 @@
     :repository "https://github.com/1010todd/Galactic-War/"
     :base-image-url "https://raw.githubusercontent.com/1010todd/Galactic-War/master/images/"
     :ignore-files #{"data/Ultaka/Ultaka mothership weapon.txt"}
-    :race-overrides {}}})
+    :race-overrides {}}
+   :ertluk
+   {:name "Ertluk"
+    :key :ertluk
+    :resource-dir "ertluk"
+    :repository "https://github.com/ZBok/Ertluk/"
+    :base-image-url "https://raw.githubusercontent.com/ZBok/Ertluk/master/images/"
+    :ignore-files #{"data/all outfits.txt"
+                    "data/all ships.txt"
+                    "data/cheater plugin.txt"}
+    :race-overrides {"data/outfits.txt" :ertluk
+                     "data/ships.txt" :ertluk
+                     "data/variants.txt" :ertluk}}
+   :altera
+   {:name "Altera"
+    :key :altera
+    :resource-dir "altera"
+    :repository "https://github.com/EricD112/Altera/"
+    :base-image-url "https://raw.githubusercontent.com/EricD112/Altera/master/images/"
+    :ignore-files #{"data/+omnis.txt"
+                    "data/deprecated outfits.txt"}
+    :race-overrides {"data/alteran ships.txt" :altera
+                     "data/effects.txt" :altera
+                     "data/engines.txt" :altera
+                     "data/outfits.txt" :altera
+                     "data/power.txt" :altera
+                     "data/ships_old.txt" :altera
+                     "data/special.txt" :altera
+                     "data/variants.txt" :altera
+                     "data/weapons.txt" :altera}}})
 
 (defn- repo-version [dir]
   "Tells you the version of a git repository."
@@ -45,7 +74,7 @@
                                     (str/split #"-"))]
     (merge {:hash commit-hash
             :date commit-date}
-           (when (nil? commits-since-tag)
+           (when (and (nil? commits-since-tag) (not (= "" tag)))
              {:tag tag}))))
 
 (defn file->plugin [file]
@@ -87,6 +116,9 @@
                                                      file))
                                      (:ignore-files plugin)))
                               (vals plugins)))))
+
+(defn plugin-dirs []
+  (map :resource-dir (vals plugins)))
 
 (defn processed-plugins []
   "The final plugin data that get passed to the web application side of things

@@ -21,11 +21,6 @@ img.ship-sprite {
     height:     auto;
 }
 
-.game-version {
-    float: right;
-    padding: 10px 15px;
-}
-
 .form-check label.checkbox-header {
     font-weight: bold;
     text-decoration: underline;
@@ -258,4 +253,20 @@ table.reagent-table thead th {
 
 .label-xyncil-zorcn {
     background-color: #194730
+}
+
+/* Ertluk */
+
+.label-ertluk {
+    background-color: #285477
+}
+
+/* Altera */
+
+.label-altera {
+    background-color: #132519;
+}
+
+.label-ascaria {
+    background-color: #cccccc;
 }

@@ -40,7 +40,7 @@
 (defn generate-data []
   "Attempts to parse the data files and save the resulting info."
   (try
-    (let [data (parse-data-files (find-data-files ["game/data" "gw/data"]))
+    (let [data (parse-data-files (find-data-files (map #(str % "/data") (plugins/plugin-dirs))))
           complete-outfits (outfits data)
           complete-ships (ships-data data complete-outfits)
           complete-modifications (modifications-data data complete-outfits)
@@ -62,5 +62,6 @@
 
 (comment
   (generate-data)
-  (find-data-files '("game/data" "gw/data"))
+  (government-colors (find-data-files '("altera/data")))
+  [*e]
 )
