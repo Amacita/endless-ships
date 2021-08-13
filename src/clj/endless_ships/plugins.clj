@@ -48,14 +48,14 @@
     :repository "https://github.com/EricD112/Altera/"
     :base-image-url "https://raw.githubusercontent.com/EricD112/Altera/master/images/"
     :ignore-files #{"data/+omnis.txt"
+                    "data/ships_old.txt"
+                    "data/special.txt"
                     "data/deprecated outfits.txt"}
     :race-overrides {"data/alteran ships.txt" :altera
                      "data/effects.txt" :altera
                      "data/engines.txt" :altera
                      "data/outfits.txt" :altera
                      "data/power.txt" :altera
-                     "data/ships_old.txt" :altera
-                     "data/special.txt" :altera
                      "data/variants.txt" :altera
                      "data/weapons.txt" :altera}}})
 
