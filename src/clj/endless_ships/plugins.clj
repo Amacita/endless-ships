@@ -29,18 +29,6 @@
     :base-image-url "https://raw.githubusercontent.com/1010todd/Galactic-War/master/images/"
     :ignore-files #{"data/Ultaka/Ultaka mothership weapon.txt"}
     :race-overrides {}}
-   :ertluk
-   {:name "Ertluk"
-    :key :ertluk
-    :resource-dir "ertluk"
-    :repository "https://github.com/ZBok/Ertluk/"
-    :base-image-url "https://raw.githubusercontent.com/ZBok/Ertluk/master/images/"
-    :ignore-files #{"data/all outfits.txt"
-                    "data/all ships.txt"
-                    "data/cheater plugin.txt"}
-    :race-overrides {"data/outfits.txt" :ertluk
-                     "data/ships.txt" :ertluk
-                     "data/variants.txt" :ertluk}}
    :altera
    {:name "Altera"
     :key :altera
