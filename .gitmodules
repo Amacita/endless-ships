@@ -6,9 +6,6 @@
 	path = resources/gw
 	url = git@github.com:1010todd/Galactic-War.git
 	ignore = all
-[submodule "resources/ertluk"]
-	path = resources/ertluk
-	url = git@github.com:ZBok/Ertluk.git
 [submodule "resources/altera"]
 	path = resources/altera
 	url = git@github.com:EricD112/Altera.git
